@@ -1,0 +1,28 @@
+{
+  "name" : "Blacklist",
+  "description" : "Display a notification when a user in your blacklist joins the game",
+  "author" : "Funknapkin",
+  "contact" : "Not saying",
+  "version" : "0.1",
+  "priority" : 10,
+  "hooks" : [
+    {
+      "hook_id"     : "lib/network/networkgame",
+      "script_path" : "Events.lua"
+    },
+    {
+      "hook_id"     : "lib/managers/hud/hudchat",
+      "script_path" : "Events.lua"
+    },
+    {
+      "hook_id"     : "lib/managers/chatmanager",
+      "script_path" : "Events.lua"
+    }
+  ],
+  "persist_scripts" : [
+    {
+      "global" : "Blacklist",
+      "script_path" : "Blacklist.lua"
+    }
+  ],
+}
