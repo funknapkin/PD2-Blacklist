@@ -1,3 +1,5 @@
+require( ModPath .. "/BlacklistMenu.lua" )
+
 if not Blacklist then
   -- Note: this script seems to get reset everytime the game changes "state".
   -- i.e. lobby->planning->game
@@ -5,7 +7,7 @@ if not Blacklist then
   Blacklist = {}
 
   --[[
-  Construction.
+  Constructor.
   Loads settings and the blacklist from files, or use default options if they
   don't exist.
   --]]
@@ -13,6 +15,9 @@ if not Blacklist then
     self:load_config()
     self:load_user_list()
     self.chat_backlog = {}
+
+    LocalizationManager:load_localization_file(ModPath .. "/localization_data.json")
+    BlacklistMenu:init(self)
   end
 
   --[[
@@ -259,7 +264,6 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
-    self:save_user_list()
   end
 
   Blacklist:init()

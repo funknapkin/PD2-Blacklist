@@ -18,7 +18,7 @@ function Blacklist:load_user_list() end
 function Blacklist:save_user_list() end
 
 --[[
-Functions to manage chat and it's backlog.
+Functions to manage chat and its backlog.
 --]]
 function Blacklist:write_to_chat(message) end
 function Blacklist:add_to_backlog(message) end
