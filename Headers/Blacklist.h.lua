@@ -33,6 +33,18 @@ function Blacklist:on_peer_added(name, user_id) end
 function Blacklist:on_chat_init() end
 
 --[[
+Member setters and getters
+--]]
+function Blacklist:get_show_banned() end
+function Blacklist:set_show_banned(new_show_banned) end
+function Blacklist:get_show_not_banned() end
+function Blacklist:set_show_not_banned(new_show_not_banned) end
+function Blacklist:get_chat_name() end
+function Blacklist:set_chat_name(new_chat_name) end
+function Blacklist:get_chat_color() end
+function Blacklist:set_chat_color(new_chat_color) end
+
+--[[
 Debug functions
 --]]
 function Blacklist:debug_print(msg) end
@@ -41,7 +53,7 @@ function Blacklist:run_tests() end
 --[[
 Members
 --]]
-Blacklist.show_not_banned = bool
+Blacklist.show_banned = bool
 Blacklist.show_not_banned = bool
 Blacklist.chat_name = string
 Blacklist.chat_color = string

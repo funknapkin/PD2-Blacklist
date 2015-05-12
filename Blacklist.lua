@@ -45,16 +45,16 @@ if not Blacklist then
     end
     -- Assign values from the config to this object
     if json_object["show_banned"] ~= nil then
-      self.show_banned = json_object["show_banned"]
+      self:set_show_banned(json_object["show_banned"])
     end
     if json_object["show_not_banned"] ~= nil then
-      self.show_not_banned = json_object["show_not_banned"]
+      self:set_show_not_banned(json_object["show_not_banned"])
     end
     if json_object["chat_name"] ~= nil then
-      self.chat_name = json_object["chat_name"]
+      self:set_chat_name(json_object["chat_name"])
     end
     if json_object["chat_color"] ~= nil then
-      self.chat_color = json_object["chat_color"]
+      self:set_chat_color(json_object["chat_color"])
     end
   end
 
@@ -67,10 +67,10 @@ if not Blacklist then
     local json_object = {}
     json_object["config_version"] = 1
     -- Options to save
-    json_object["show_banned"] = self.show_banned
-    json_object["show_not_banned"] = self.show_not_banned
-    json_object["chat_name"] = self.chat_name
-    json_object["chat_color"] = "ffff0000" -- argb
+    json_object["show_banned"] = self:get_show_banned()
+    json_object["show_not_banned"] = self:get_show_not_banned()
+    json_object["chat_name"] = self:get_chat_name()
+    json_object["chat_color"] = self:get_chat_color()
     -- Create json string and make it human-readable
     local json_string = json.encode(json_object)
     json_string = json_string:gsub(",(\".-\":)", ",\n %1")
@@ -140,12 +140,9 @@ if not Blacklist then
         and managers.chat._receivers[1]
     then
       -- Chat is initialized, write message to chat.
-      if type(self.chat_color) == "string" and Color then
-        self.chat_color = Color(self.chat_color)
-      end
       if Color then
         managers.chat:_receive_message(
-          managers.chat.GAME, self.chat_name, message, self.chat_color)
+          managers.chat.GAME, self:get_chat_name(), message, Color(self:get_chat_color()))
       end
     else
       -- Chat not initialized, add message to the backlog.
@@ -225,9 +222,9 @@ if not Blacklist then
   option to display all users is enabled.
   --]]
   function Blacklist:on_peer_added(name, user_id)
-    if self.users and self.users[user_id] ~= nil and self.show_banned then
+    if self.users and self.users[user_id] ~= nil and self:get_show_banned() then
       self:write_to_chat(name .. " is in the blacklist: " .. self.users[user_id])
-    elseif self.users and self.show_not_banned then
+    elseif self.users and self:get_show_not_banned() then
       self:write_to_chat(name .. " is not in the blacklist")
     elseif not self.users then
       self:write_to_chat("ERROR: User list not initialized.")
@@ -240,6 +237,78 @@ if not Blacklist then
   --]]
   function Blacklist:on_chat_init()
     self:clear_backlog()
+  end
+
+  --[[
+  Get the option to display a message when users in the blacklist join the
+  game.
+  --]]
+  function Blacklist:get_show_banned()
+    return self.show_banned
+  end
+
+  --[[
+  Set the option to display a message when users in the blacklist join the
+  game.
+  --]]
+  function Blacklist:set_show_banned(new_show_banned)
+    if type(new_show_banned) == "boolean" then
+      self.show_banned = new_show_banned
+    end
+  end
+
+  --[[ Get the option to display a message when users who are not in the
+  blacklist join the game
+  --]]
+  function Blacklist:get_show_not_banned()
+    return self.show_not_banned
+  end
+
+  --[[
+  Set the option to display a message when users who are not in the
+  blacklist join the game
+  --]]
+  function Blacklist:set_show_not_banned(new_show_not_banned)
+    if type(new_show_not_banned) == "boolean" then
+      self.show_not_banned = new_show_not_banned
+    end
+  end
+
+  --[[
+  Get the username used by the blacklist when showing chat messages
+  --]]
+  function Blacklist:get_chat_name()
+    return self.chat_name
+  end
+
+  --[[
+  Set the username used by the blacklist when showing chat messages
+  --]]
+  function Blacklist:set_chat_name(new_chat_name)
+    if type(new_chat_name) == "string" then
+      self.chat_name = new_chat_name
+    end
+  end
+
+  --[[
+  Get the color used by the blacklist when showing chat messages. This color
+  is used for the username of the message sender.
+  ]]
+  function Blacklist:get_chat_color()
+    return self.chat_color
+  end
+
+  --[[
+  Set the color used by the blacklist when showing chat messages. This color
+  is used for the username of the message sender.
+  --]]
+  function Blacklist:set_chat_color(new_chat_color)
+    if type(new_chat_color) == "string" then
+      -- Validate that the new string follows the format "aarrggbb"
+      if #new_chat_color == 8 and new_chat_color:find("^[0-9a-f]+$") ~= nil then
+        self.chat_color = new_chat_color
+      end
+    end
   end
 
   --[[
