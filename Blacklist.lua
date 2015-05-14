@@ -113,8 +113,10 @@ if not Blacklist then
   --]]
   function Blacklist:save_user_list()
     -- Create json string and make it human-readable
+    -- Some usernames might mess with the formatting. Should be rare.
     local json_string = json.encode(self.users)
-    json_string = json_string:gsub(",(\".-\":)", ",\n %1")
+    json_string = json_string:gsub("(\".-\":%[\".-\",\".-\"%])", "%1\n")
+    --"(\".-\":%[.-%])"
     -- Save json string to file
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_userlist.json"
@@ -222,12 +224,12 @@ if not Blacklist then
   option to display all users is enabled.
   --]]
   function Blacklist:on_peer_added(name, user_id)
-    if self.users and self.users[user_id] ~= nil and self:get_show_banned() then
-      self:write_to_chat(name .. " is in the blacklist: " .. self.users[user_id])
-    elseif self.users and self:get_show_not_banned() then
+    local user_is_in_blacklist = self:is_user_in_blacklist(user_id)
+    if user_is_in_blacklist and self:get_show_banned() then
+      local _, ban_reason = self:get_user_data(user_id)
+      self:write_to_chat(name .. " is in the blacklist: " .. ban_reason)
+    elseif (not user_is_in_blacklist) and self:get_show_not_banned() then
       self:write_to_chat(name .. " is not in the blacklist")
-    elseif not self.users then
-      self:write_to_chat("ERROR: User list not initialized.")
     end
   end
 
@@ -312,6 +314,76 @@ if not Blacklist then
   end
 
   --[[
+  Returns true if a user is in the blacklist, false otherwise
+  --]]
+  function Blacklist:is_user_in_blacklist(user_id)
+    assert(type(self.users) == "table")
+    -- If there is an entry in the table for that user, he's in the blacklist
+    return self.users[user_id] ~= nil
+  end
+
+  --[[
+  Get the data associatied with a user id.
+  Returns:
+    A tuple with the following values, in the following order:
+      - Name of the user when he was added to the list
+      - Reason the user was added to the list
+    Returns nil if the user is not in the blacklist
+  --]]
+  function Blacklist:get_user_data(user_id)
+    assert(type(self.users) == "table")
+
+    local userdata = self.users[user_id]
+    if type(userdata) == "table" then
+      return unpack(userdata)
+    else
+      return nil
+    end
+  end
+
+  --[[
+  Returns an iterator to go through all ids in the blacklist.
+  Each iteration returns a string with the user id.
+  --]]
+  function Blacklist:ids_in_blacklist()
+    assert(type(self.users) == "table")
+    -- Fill a list with all user ids
+    local user_ids = {}
+    for user_id, _ in pairs(self.users) do
+      user_ids[#user_ids + 1] = user_id
+    end
+    -- Return an iterator
+    local iter_i = 0
+    return function()
+        iter_i = iter_i + 1
+        if iter_i > #user_ids then
+          -- End of iteration
+          return nil
+        else
+          -- Return the current user id
+          return user_ids[iter_i]
+        end
+      end
+  end
+
+  --[[
+  Add a user to the blacklist.
+  Args:
+    user_id (string): User id.
+    username (string): Display name of the user (steam name).
+    reason (string): Text that explains why a user is added to the blacklist.
+  --]]
+  function Blacklist:add_user_to_blacklist(user_id, username, reason)
+    assert(type(self.users) == "table")
+    assert(type(user_id) == "string")
+    assert(type(username) == "string")
+    assert(type(reason) == "string")
+
+    -- Add (or replace) the entry in the user list
+    self.users[user_id] = {username, reason}
+  end
+
+  --[[
     Function to write a message to a text file. Used for development and
     debug purposes.
   --]]
@@ -333,6 +405,13 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
+    self:save_user_list()
+    self:load_user_list()
+    self:save_user_list()
+    self:load_user_list()
+    self:save_user_list()
+    self:load_user_list()
+    self:write_to_chat("Tests finished")
   end
 
   Blacklist:init()

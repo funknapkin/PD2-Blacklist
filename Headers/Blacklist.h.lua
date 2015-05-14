@@ -44,6 +44,11 @@ function Blacklist:set_chat_name(new_chat_name) end
 function Blacklist:get_chat_color() end
 function Blacklist:set_chat_color(new_chat_color) end
 
+function Blacklist:is_user_in_blacklist(user_id) end
+function Blacklist:get_user_data(user_id) end
+function Blacklist:ids_in_blacklist() end
+function Blacklist:add_user_to_blacklist(user_id, username, reason) end
+
 --[[
 Debug functions
 --]]
@@ -51,9 +56,10 @@ function Blacklist:debug_print(msg) end
 function Blacklist:run_tests() end
 
 --[[
-Members
+Members (private)
 --]]
 Blacklist.show_banned = bool
 Blacklist.show_not_banned = bool
 Blacklist.chat_name = string
 Blacklist.chat_color = string
+Blacklist.users = array
