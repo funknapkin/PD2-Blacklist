@@ -1,3 +1,4 @@
+require( ModPath .. "/assert.lua" )
 require( ModPath .. "/BlacklistMenu.lua" )
 
 if not Blacklist then
@@ -159,7 +160,8 @@ if not Blacklist then
   written to a file.
   --]]
   function Blacklist:add_to_backlog(message)
-    if type(message) ~= "string" or message == "" then
+    assert(type(message) == "string", "Wrong argument type in add_to_backlog")
+    if message == "" then
       return
     end
 
@@ -224,6 +226,9 @@ if not Blacklist then
   option to display all users is enabled.
   --]]
   function Blacklist:on_peer_added(name, user_id)
+    assert(type(name) == "string", "Wrong argument type in on_peer_added")
+    assert(type(user_id) == "string", "Wrong argument type in on_peer_added")
+
     local user_is_in_blacklist = self:is_user_in_blacklist(user_id)
     if user_is_in_blacklist and self:get_show_banned() then
       local _, ban_reason = self:get_user_data(user_id)
@@ -254,9 +259,8 @@ if not Blacklist then
   game.
   --]]
   function Blacklist:set_show_banned(new_show_banned)
-    if type(new_show_banned) == "boolean" then
-      self.show_banned = new_show_banned
-    end
+    assert(type(new_show_banned) == "boolean", "Wrong argument type in set_show_banned")
+    self.show_banned = new_show_banned
   end
 
   --[[ Get the option to display a message when users who are not in the
@@ -271,9 +275,8 @@ if not Blacklist then
   blacklist join the game
   --]]
   function Blacklist:set_show_not_banned(new_show_not_banned)
-    if type(new_show_not_banned) == "boolean" then
-      self.show_not_banned = new_show_not_banned
-    end
+    assert(type(new_show_not_banned) == "boolean", "Wrong argument type in set_show_not_banned")
+    self.show_not_banned = new_show_not_banned
   end
 
   --[[
@@ -287,9 +290,8 @@ if not Blacklist then
   Set the username used by the blacklist when showing chat messages
   --]]
   function Blacklist:set_chat_name(new_chat_name)
-    if type(new_chat_name) == "string" then
-      self.chat_name = new_chat_name
-    end
+    assert(type(new_chat_name) == "string", "Wrong argument type in new_chat_name")
+    self.chat_name = new_chat_name
   end
 
   --[[
@@ -305,11 +307,10 @@ if not Blacklist then
   is used for the username of the message sender.
   --]]
   function Blacklist:set_chat_color(new_chat_color)
-    if type(new_chat_color) == "string" then
-      -- Validate that the new string follows the format "aarrggbb"
-      if #new_chat_color == 8 and new_chat_color:find("^[0-9a-f]+$") ~= nil then
-        self.chat_color = new_chat_color
-      end
+    assert(type(new_chat_color) == "string", "Wrong argument type in set_chat_color")
+    -- Validate that the new string follows the format "aarrggbb"
+    if #new_chat_color == 8 and new_chat_color:find("^[0-9a-f]+$") ~= nil then
+      self.chat_color = new_chat_color
     end
   end
 
@@ -317,7 +318,7 @@ if not Blacklist then
   Returns true if a user is in the blacklist, false otherwise
   --]]
   function Blacklist:is_user_in_blacklist(user_id)
-    assert(type(self.users) == "table")
+    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in is_user_in_blacklist")
     -- If there is an entry in the table for that user, he's in the blacklist
     return self.users[user_id] ~= nil
   end
@@ -331,7 +332,7 @@ if not Blacklist then
     Returns nil if the user is not in the blacklist
   --]]
   function Blacklist:get_user_data(user_id)
-    assert(type(self.users) == "table")
+    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in get_user_data")
 
     local userdata = self.users[user_id]
     if type(userdata) == "table" then
@@ -346,7 +347,7 @@ if not Blacklist then
   Each iteration returns a string with the user id.
   --]]
   function Blacklist:ids_in_blacklist()
-    assert(type(self.users) == "table")
+    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in ids_in_blacklist")
     -- Fill a list with all user ids
     local user_ids = {}
     for user_id, _ in pairs(self.users) do
@@ -374,10 +375,10 @@ if not Blacklist then
     reason (string): Text that explains why a user is added to the blacklist.
   --]]
   function Blacklist:add_user_to_blacklist(user_id, username, reason)
-    assert(type(self.users) == "table")
-    assert(type(user_id) == "string")
-    assert(type(username) == "string")
-    assert(type(reason) == "string")
+    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in add_user_to_blacklist")
+    assert(type(user_id) == "string", "Wrong argument type in add_user_to_blacklist")
+    assert(type(username) == "string", "Wrong argument type in add_user_to_blacklist")
+    assert(type(reason) == "string", "Wrong argument type in add_user_to_blacklist")
 
     -- Add (or replace) the entry in the user list
     self.users[user_id] = {username, reason}
@@ -405,12 +406,6 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
-    self:save_user_list()
-    self:load_user_list()
-    self:save_user_list()
-    self:load_user_list()
-    self:save_user_list()
-    self:load_user_list()
     self:write_to_chat("Tests finished")
   end
 
