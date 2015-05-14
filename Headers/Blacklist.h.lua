@@ -48,6 +48,7 @@ function Blacklist:is_user_in_blacklist(user_id) end
 function Blacklist:get_user_data(user_id) end
 function Blacklist:ids_in_blacklist() end
 function Blacklist:add_user_to_blacklist(user_id, username, reason) end
+function Blacklist:remove_user_from_blacklist(user_id) end
 
 --[[
 Debug functions

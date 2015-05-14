@@ -385,6 +385,15 @@ if not Blacklist then
   end
 
   --[[
+  Remove a user from the blacklist, if he exists.
+  --]]
+  function Blacklist:remove_user_from_blacklist(user_id)
+    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in remove_user_from_blacklist")
+    assert(type(user_id) == "string", "Wrong argument type in remove_user_from_blacklist")
+    self.users[user_id] = nil
+  end
+
+  --[[
     Function to write a message to a text file. Used for development and
     debug purposes.
   --]]
