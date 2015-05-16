@@ -1,4 +1,8 @@
 {
   "blacklist_options_menu_title": "Blacklist",
-  "blacklist_options_menu_desc":  "Options for the Blacklist mod"
+  "blacklist_options_menu_desc":  "Options for the Blacklist mod",
+  "blacklist_toggle_show_banned_title": "Show banned users",
+  "blacklist_toggle_show_banned_desc":  "Display a chat message when a player in the blacklist joins the game",
+  "blacklist_toggle_show_not_banned_title": "Show not banned users",
+  "blacklist_toggle_show_not_banned_desc":  "Display a chat message when a player who is not in the blacklist joins the game"
 }
