@@ -1,9 +1,19 @@
-require( ModPath .. "/assert.lua" )
-require( ModPath .. "/BlacklistMenu.lua" )
-
 if not Blacklist then
   -- Note: this script seems to get reset everytime the game changes "state".
   -- i.e. lobby->planning->game
+
+  -- Import scripts needed for the Blacklist mod
+  local import_success_assert = pcall(dofile, ModPath .. "/assert.lua")
+  local import_success_menu = pcall(dofile, ModPath .. "/BlacklistMenu.lua")
+  if not (import_success_assert and import_success_menu) then
+    -- Error importing file, log error and force exit
+    Log("Importation error in Blacklist/Blacklist.lua")
+    os.exit()
+  end
+
+  -- Overwrite the assert function for this script only. Necessary to do this
+  -- here since BLT doesn't seem to support the "require" function...
+  local assert = bl_assert
 
   Blacklist = {}
 
