@@ -1,3 +1,11 @@
+-- Includes
+local import_success = pcall(dofile, ModPath .. "/GUITextInput.lua")
+if not import_success then
+  -- Error importing file, log error and force exit
+  Log("Importation error in Blacklist/BlacklistMenu.lua")
+  os.exit()
+end
+
 BlacklistMenu = {}
 
 --[[
@@ -39,6 +47,8 @@ function BlacklistMenu:_create_mod_options_menu()
     function(menu_manager, nodes)
       self:_add_show_banned_toggle(menu_id)
       self:_add_show_not_banned_toggle(menu_id)
+      self:_add_chat_name_button(menu_id)
+      self:_add_chat_color_button(menu_id)
     end)
 
   -- Add hook to build the menu
@@ -86,6 +96,44 @@ function BlacklistMenu:_add_show_not_banned_toggle(parent_menu_id)
     desc = "blacklist_toggle_show__notbanned_desc",
     callback = "blacklist_toggle_show_not_banned_callback",
     value = self.blacklist_ref:get_show_not_banned(),
+    menu_id = parent_menu_id
+  })
+end
+
+--[[
+Add a button to change the "Chat name" option.
+--]]
+function BlacklistMenu:_add_chat_name_button(parent_menu_id)
+  MenuCallbackHandler.blacklist_button_chat_name_callback = function(this, item)
+    local input_complete_callback = function(text)
+      self.blacklist_ref:set_chat_name(text)
+    end
+    local input_dialog = GUITextInput:new(input_complete_callback)
+  end
+  MenuHelper:AddButton({
+    id = "blacklist_button_chat_name",
+    title = "blacklist_button_chat_name_title",
+    desc = "blacklist_button_chat_name_desc",
+    callback = "blacklist_button_chat_name_callback",
+    menu_id = parent_menu_id
+  })
+end
+
+--[[
+Add a button to change the "Chat color" option.
+--]]
+function BlacklistMenu:_add_chat_color_button(parent_menu_id)
+  MenuCallbackHandler.blacklist_button_chat_color_callback = function(this, item)
+    local input_complete_callback = function(text)
+      self.blacklist_ref:set_chat_color(text)
+    end
+    local input_dialog = GUITextInput:new(input_complete_callback)
+  end
+  MenuHelper:AddButton({
+    id = "blacklist_button_chat_color",
+    title = "blacklist_button_chat_color_title",
+    desc = "blacklist_button_chat_color_desc",
+    callback = "blacklist_button_chat_color_callback",
     menu_id = parent_menu_id
   })
 end

@@ -4,5 +4,9 @@
   "blacklist_toggle_show_banned_title": "Show banned users",
   "blacklist_toggle_show_banned_desc":  "Display a chat message when a player in the blacklist joins the game",
   "blacklist_toggle_show_not_banned_title": "Show not banned users",
-  "blacklist_toggle_show_not_banned_desc":  "Display a chat message when a player who is not in the blacklist joins the game"
+  "blacklist_toggle_show_not_banned_desc":  "Display a chat message when a player who is not in the blacklist joins the game",
+  "blacklist_button_chat_name_title": "Chat name",
+  "blacklist_button_chat_name_desc": "Change the name used when showing chat notifications",
+  "blacklist_button_chat_color_title": "Chat color",
+  "blacklist_button_chat_color_desc": "Change the color used when showing chat notifications"
 }

@@ -318,9 +318,16 @@ if not Blacklist then
   --]]
   function Blacklist:set_chat_color(new_chat_color)
     assert(type(new_chat_color) == "string", "Wrong argument type in set_chat_color")
-    -- Validate that the new string follows the format "aarrggbb"
-    if #new_chat_color == 8 and new_chat_color:find("^[0-9a-f]+$") ~= nil then
-      self.chat_color = new_chat_color
+    -- Validate that the new string represents an hexadecimal value
+    local new_chat_color = new_chat_color:lower()
+    if new_chat_color:find("^[0-9a-f]+$") ~= nil then
+      if #new_chat_color == 8 then
+        -- String follows the format "aarrggbb"
+        self.chat_color = new_chat_color
+      elseif #new_chat_color == 6 then
+        -- String follow the format "rrggbb", use default alpha value
+        self.chat_color = "ff" .. new_chat_color
+      end
     end
   end
 
@@ -425,6 +432,17 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
+    --[[
+    local kb = Input:keyboard()
+    self:write_to_chat(tostring(Input:keyboard():down(Idstring("left shift"))))
+
+    local workspace = Overlay:gui():create_screen_workspace()
+    workspace:connect_keyboard(kb)
+    local panel = workspace:panel({ name = "workspace_panel" })
+
+    panel:enter_text(function(...) self:write_to_chat('Text entered') end)
+    panel:key_press(function(...) self:write_to_chat('Key pressed') end)
+    --]]
     self:write_to_chat("Tests finished")
   end
 
