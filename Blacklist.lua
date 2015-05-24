@@ -25,7 +25,6 @@ if not Blacklist then
   function Blacklist:init()
     self:load_config()
     self:load_user_list()
-    self.chat_backlog = {}
 
     LocalizationManager:load_localization_file(ModPath .. "/localization_data.json")
     BlacklistMenu:init(self)
@@ -127,7 +126,6 @@ if not Blacklist then
     -- Some usernames might mess with the formatting. Should be rare.
     local json_string = json.encode(self.users)
     json_string = json_string:gsub("(\".-\":%[\".-\",\".-\"%])", "%1\n")
-    --"(\".-\":%[.-%])"
     -- Save json string to file
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_userlist.json"
@@ -176,7 +174,7 @@ if not Blacklist then
     end
 
     local directory = SavePath or ""
-    local filepath = directory .. "blacklist_backlog.json"
+    local filepath = directory .. "blacklist_backlog.txt"
     local file = io.open(filepath, "a")
     if file then
       file:write(message .. "\n")
@@ -199,7 +197,7 @@ if not Blacklist then
     end
     -- Load the backlog from the file into a variable
     local directory = SavePath or ""
-    local filepath = directory .. "blacklist_backlog.json"
+    local filepath = directory .. "blacklist_backlog.txt"
     local backlog = {}
     local file = io.open(filepath, "r")
     if file then
@@ -231,6 +229,77 @@ if not Blacklist then
   end
 
   --[[
+  Add a user to the last users list.
+  Args:
+    name: Name of the user to add (string)
+    user_id: Steam ID of the user to add (string)
+  Returns:
+    true if the user was added successfully, false otherwise
+  --]]
+  function Blacklist:add_user_to_last_users_list(name, user_id)
+    assert(type(name) == "string", "Wrong argument type in add_user_to_last_users_list")
+    assert(type(user_id) == "string", "Wrong argument type in add_user_to_last_users_list")
+
+    local last_users_list = self:get_last_users_list()
+
+    -- Remove the user from the list if he already exists
+    local user_exists_in_list = false
+    local user_index_in_list = 0
+    for index, userdata in pairs(last_users_list) do
+      if user_id == userdata[2] then
+        user_exists_in_list = true
+        user_index_in_list = index
+        break
+      end
+    end
+    if user_exists_in_list then
+      table.remove(last_users_list, user_index_in_list)
+    end
+
+    -- Add user to the last users list
+    local last_users_list = self:get_last_users_list()
+    table.insert(last_users_list, {name, user_id})
+
+    -- Crop list to the last 10 users
+    last_users_list[11] = nil
+
+    -- Save last users list to a json file
+    local json_string = json.encode(last_users_list)
+    local directory = SavePath or ""
+    local filepath = directory .. "blacklist_last_users.json"
+    local file = io.open(filepath, "w")
+    if file then
+      file:write(json_string)
+      file:close()
+      return true
+    else
+      return false
+    end
+  end
+
+  --[[
+  Get the last users who connected to the game. The list is ordered to return
+  the most recent users first.
+  Returns:
+    An array with the last connected users. Format is as follows:
+    {{name1, user_id1}, {name2, user_id2}, ...}
+  --]]
+  function Blacklist:get_last_users_list()
+    -- Load the json file's content into the json object
+    local directory = SavePath or ""
+    local filepath = directory .. "blacklist_last_users.json"
+    local json_string
+    local file = io.open(filepath, "r")
+    local last_users_list = {}
+    if file then
+      json_string = file:read("*a")
+      last_users_list = json.decode(json_string)
+      file:close()
+    end
+    return last_users_list
+  end
+
+  --[[
   Function called when a new player connects to the game.
   Displays a chat message if the user is in the blacklist, or if the
   option to display all users is enabled.
@@ -239,6 +308,10 @@ if not Blacklist then
     assert(type(name) == "string", "Wrong argument type in on_peer_added")
     assert(type(user_id) == "string", "Wrong argument type in on_peer_added")
 
+    -- Log user
+    self:add_user_to_last_users_list(name, user_id)
+
+    -- Display chat notifications
     local user_is_in_blacklist = self:is_user_in_blacklist(user_id)
     if user_is_in_blacklist and self:get_show_banned() then
       local _, ban_reason = self:get_user_data(user_id)
@@ -432,6 +505,9 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
+    for index, userdata in pairs(self:get_last_users_list()) do
+      self:write_to_chat(userdata[1])
+    end
     --[[
     local kb = Input:keyboard()
     self:write_to_chat(tostring(Input:keyboard():down(Idstring("left shift"))))

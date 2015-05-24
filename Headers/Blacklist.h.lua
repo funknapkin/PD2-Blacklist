@@ -27,6 +27,12 @@ function Blacklist:clear_backlog() end
 function Blacklist:manual_check() end
 
 --[[
+Functions to keep track of the last users who joined the game.
+--]]
+function Blacklist:add_user_to_last_users_list(name, user_id) end
+function Blacklist:get_last_users_list() end
+
+--[[
 Functions called on events.
 --]]
 function Blacklist:on_peer_added(name, user_id) end
