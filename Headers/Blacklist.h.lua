@@ -1,8 +1,6 @@
 --[[
-"Header" files for Blacklist. It's never actually loaded, it is only used as
-a reference.
-As a C++ dev, I find browsing a barebones file with only the function and
-member names very helpful for programming.
+Base class for the Blacklist mod. It keeps track of all the data necessary for
+the mod, such as the user list, and offers utility functions.
 --]]
 
 Blacklist = {}

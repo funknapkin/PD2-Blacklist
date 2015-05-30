@@ -1,8 +1,6 @@
 --[[
-"Header" files for BlacklistMenu. It's never actually loaded, it is only used as
-a reference.
-As a C++ dev, I find browsing a barebones file with only the function and
-member names very helpful for programming.
+Class that handles the menu items for the Blacklist Mod. It adds options to
+the Mod Option menu, as well as a button that shows in the in-game menu.
 --]]
 
 BlacklistMenu = {}

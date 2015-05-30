@@ -1,0 +1,5 @@
+This folder contains "header" files for the Blacklist mod. These files are never
+actually loaded, they are only used as a reference.
+
+As a C++ dev, I find browsing a barebones file with only the function and
+member names very helpful for programming.
