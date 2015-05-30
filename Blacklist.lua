@@ -5,8 +5,7 @@ if not Blacklist then
   -- Import scripts needed for the Blacklist mod
   local import_success_assert = pcall(dofile, ModPath .. "/assert.lua")
   local import_success_menu = pcall(dofile, ModPath .. "/BlacklistMenu.lua")
-  local import_success_popup = pcall(dofile, ModPath .. "/BlacklistPopupMenu.lua")
-  if not (import_success_assert and import_success_menu and import_success_popup) then
+  if not (import_success_assert and import_success_menu) then
     -- Error importing file, log error and force exit
     Log("Importation error in Blacklist/Blacklist.lua")
     os.exit()
@@ -246,7 +245,7 @@ if not Blacklist then
     -- Remove the user from the list if he already exists
     local user_exists_in_list = false
     local user_index_in_list = 0
-    for index, userdata in pairs(last_users_list) do
+    for index, userdata in ipairs(last_users_list) do
       if user_id == userdata[2] then
         user_exists_in_list = true
         user_index_in_list = index
@@ -254,12 +253,12 @@ if not Blacklist then
       end
     end
     if user_exists_in_list then
-      table.remove(last_users_list, 1, user_index_in_list)
+      table.remove(last_users_list, user_index_in_list)
     end
 
     -- Add user to the last users list
     local last_users_list = self:get_last_users_list()
-    table.insert(last_users_list, {name, user_id})
+    table.insert(last_users_list, 1, {name, user_id})
 
     -- Crop list to the last 10 users
     last_users_list[11] = nil
@@ -506,7 +505,6 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
-    BlacklistPopupMenu:new(self)
     --[[
     local kb = Input:keyboard()
     self:write_to_chat(tostring(Input:keyboard():down(Idstring("left shift"))))
@@ -522,5 +520,4 @@ if not Blacklist then
   end
 
   Blacklist:init()
-  Blacklist:debug_print("Blacklick initialized.")
 end

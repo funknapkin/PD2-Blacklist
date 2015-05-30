@@ -1,6 +1,7 @@
 -- Includes
-local import_success = pcall(dofile, ModPath .. "/GUITextInput.lua")
-if not import_success then
+local import_success_input = pcall(dofile, ModPath .. "/GUITextInput.lua")
+local import_success_popup = pcall(dofile, ModPath .. "/BlacklistPopupMenu.lua")
+if not (import_success_input and import_success_popup) then
   -- Error importing file, log error and force exit
   Log("Importation error in Blacklist/BlacklistMenu.lua")
   os.exit()
@@ -19,6 +20,7 @@ function BlacklistMenu:init(blacklist_ref)
 
   -- Create menus and buttons
   self:_create_mod_options_menu()
+  self:_create_popup_menu()
 end
 
 --[[
@@ -63,6 +65,22 @@ function BlacklistMenu:_create_mod_options_menu()
         menu_id,
         "blacklist_options_menu_title",
         "blacklist_options_menu_desc")
+    end)
+end
+
+function BlacklistMenu:_create_popup_menu()
+  Hooks:Add("MenuManagerPopulateCustomMenus", "BlacklistPopupMenu_Populate",
+    function(menu_manager, nodes)
+      MenuCallbackHandler.blacklist_popup_menu_callback = function(this, item)
+        BlacklistPopupMenu:new(self.blacklist_ref)
+      end
+      MenuHelper:AddButton({
+        id = "blacklist_button_popup_menu",
+        title = "blacklist_button_popup_menu_title",
+        desc = "blacklist_button_popup_menu_desc",
+        callback = "blacklist_popup_menu_callback",
+        menu_id = "blacklist_options_menu"
+      })
     end)
 end
 

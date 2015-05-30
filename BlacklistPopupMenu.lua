@@ -1,4 +1,12 @@
 if not BlacklistPopupMenu then
+  -- Includes
+  local import_success = pcall(dofile, ModPath .. "/GUITextInput.lua")
+  if not import_success then
+    -- Error importing file, log error and force exit
+    Log("Importation error in Blacklist/BlacklistMenu.lua")
+    os.exit()
+  end
+
   BlacklistPopupMenu = class()
 
   --[[
@@ -35,5 +43,10 @@ if not BlacklistPopupMenu then
   --]]
   function BlacklistPopupMenu:on_item_clicked(user_id, name)
     self.blacklist_ref:write_to_chat("Clicked on " .. name)
+
+      local input_complete_callback = function(text)
+        self.blacklist_ref:add_user_to_blacklist(user_id, name, text)
+      end
+      local input_dialog = GUITextInput:new(input_complete_callback)
   end
 end
