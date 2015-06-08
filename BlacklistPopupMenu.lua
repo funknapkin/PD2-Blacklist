@@ -42,11 +42,9 @@ if not BlacklistPopupMenu then
     user_id: Steam id of the user that was selected.
   --]]
   function BlacklistPopupMenu:on_item_clicked(user_id, name)
-    self.blacklist_ref:write_to_chat("Clicked on " .. name)
-
-      local input_complete_callback = function(text)
-        self.blacklist_ref:add_user_to_blacklist(user_id, name, text)
-      end
-      local input_dialog = GUITextInput:new(input_complete_callback)
+    local input_complete_callback = function(text)
+      self.blacklist_ref:add_user_to_blacklist(user_id, name, text)
+    end
+    local input_dialog = GUITextInput:new(input_complete_callback)
   end
 end

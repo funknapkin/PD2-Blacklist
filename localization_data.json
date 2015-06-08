@@ -10,5 +10,9 @@
   "blacklist_button_chat_color_title": "Chat color",
   "blacklist_button_chat_color_desc": "Change the color used when showing chat notifications",
   "blacklist_button_popup_menu_title": "Blacklist a player",
-  "blacklist_button_popup_menu_desc": "Add a player to the blacklist"
+  "blacklist_button_popup_menu_desc": "Add a player to the blacklist",
+  "blacklist_button_remove_player_title": "Un-blacklist player",
+  "blacklist_button_remove_player_desc": "Remove the selected player from the blacklist",
+  "blacklist_choice_remove_player_title": "Select player",
+  "blacklist_choice_remove_player_desc": "Select which player you want to remove from the blacklist",
 }
