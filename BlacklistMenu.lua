@@ -97,23 +97,39 @@ Add a choice field to choose the player to remove from the blacklist.
 --]]
 function BlacklistMenu:_add_remove_player_from_blacklist_selector(parent_menu_id, priority)
   -- TODO:
-  --   Build user list, sorted by player name
-  --   Add user names to localization, with a prefix to avoid name clashes
   --   Code the callback to set the self.userid_for_removal variable
   MenuCallbackHandler.blacklist_choice_remove_player_callback = function(this, item)
     self.blacklist_ref:write_to_chat(item._current_index)
   end
-  local items = {
-    "First Item",
-    "Second Item",
-    "Third Item"
-  }
+  -- Build user list, sorted by user name
+  local users = {} -- array with tuples of format {user_name, user_id}
+  for user_id in self.blacklist_ref:ids_in_blacklist() do
+    local user_name = self.blacklist_ref:get_user_data(user_id)
+    table.insert(users, {user_name, user_id})
+  end
+  local sortTuplesByFirstElements = function (elem1, elem2)
+    return elem1[1] < elem2[1]
+  end
+  table.sort(users, sortTuplesByFirstElements)
+
+  -- Build an array of usernames to display and add them to BLT's localization
+  -- data, because it's silly and won't take raw strings
+  local user_names = {}
+  local localized_strings = {}
+  for _, user_data in ipairs(users) do
+    -- The username has a prefix to avoid name clashes
+    local user_name_with_prefix = "blacklist_user_" .. user_data[1]
+    table.insert(user_names, user_name_with_prefix)
+    localized_strings[user_name_with_prefix] = user_data[1]
+  end
+  LocalizationManager:add_localized_strings(localized_strings)
+
   MenuHelper:AddMultipleChoice({
       id = "blacklist_choice_remove_player",
       title = "blacklist_choice_remove_player_title",
       desc = "blacklist_choice_remove_player_desc",
       callback = "blacklist_choice_remove_player_callback",
-      items = items,
+      items = user_names,
       value = 1,
       priority = priority,
       menu_id = parent_menu_id,
