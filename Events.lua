@@ -1,14 +1,12 @@
 local import_success = pcall(dofile, ModPath .. "/Blacklist.lua")
 
 if not import_success then
-  Log("Importation error in Blacklist/Events.lua")
+  log("Importation error in Blacklist/Events.lua")
 else
-  if RequiredScript == 'lib/network/networkgame' then
-    local old_peer_added = NetworkGame.on_peer_added
-    function NetworkGame:on_peer_added(peer, peer_id)
-      local retval = old_peer_added(self, peer, peer_id)
-      local name = peer:name()
-      local user_id = peer:user_id()
+  if RequiredScript == 'lib/network/base/networkpeer' then
+    local old_network_init = NetworkPeer.init
+    function NetworkPeer:init(name, rpc, id, loading, synced, in_lobby, character, user_id)
+      local retval = old_network_init(self, name, rpc, id, loading, synced, in_lobby, character, user_id)
       Blacklist:on_peer_added(name, user_id)
       return retval
     end

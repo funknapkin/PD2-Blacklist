@@ -7,7 +7,7 @@
   "priority" : 10,
   "hooks" : [
     {
-      "hook_id"     : "lib/network/networkgame",
+      "hook_id"     : "lib/network/base/networkpeer",
       "script_path" : "Events.lua"
     },
     {
