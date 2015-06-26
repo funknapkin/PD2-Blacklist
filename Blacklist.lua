@@ -257,7 +257,6 @@ if not Blacklist then
     end
 
     -- Add user to the last users list
-    local last_users_list = self:get_last_users_list()
     table.insert(last_users_list, 1, {name, user_id})
 
     -- Crop list to the last 10 users
