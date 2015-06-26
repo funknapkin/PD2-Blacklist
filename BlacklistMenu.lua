@@ -22,7 +22,6 @@ function BlacklistMenu:init(blacklist_ref)
 
   -- Create menus and buttons
   self:_create_mod_options_menu()
-  self:_create_popup_menu()
 end
 
 --[[
@@ -96,11 +95,6 @@ end
 Add a choice field to choose the player to remove from the blacklist.
 --]]
 function BlacklistMenu:_add_remove_player_from_blacklist_selector(parent_menu_id, priority)
-  -- TODO:
-  --   Code the callback to set the self.userid_for_removal variable
-  MenuCallbackHandler.blacklist_choice_remove_player_callback = function(this, item)
-    self.blacklist_ref:write_to_chat(item._current_index)
-  end
   -- Build user list, sorted by user name
   local users = {} -- array with tuples of format {user_name, user_id}
   for user_id in self.blacklist_ref:ids_in_blacklist() do
@@ -123,6 +117,12 @@ function BlacklistMenu:_add_remove_player_from_blacklist_selector(parent_menu_id
     localized_strings[user_name_with_prefix] = user_data[1]
   end
   LocalizationManager:add_localized_strings(localized_strings)
+
+  -- Initialize the callback for the choice
+    self.userid_for_removal = users[1][2]
+    MenuCallbackHandler.blacklist_choice_remove_player_callback = function(this, item)
+      self.userid_for_removal = users[item._current_index][2]
+    end
 
   MenuHelper:AddMultipleChoice({
       id = "blacklist_choice_remove_player",
