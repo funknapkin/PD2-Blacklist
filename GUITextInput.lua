@@ -73,45 +73,11 @@ if not GUITextInput then
       There has to be a better way to do this. Perhaps it's possible to register
       an active menu, and let the menu manager handle the logic???
     --]]
-
-    --[[
-    self.orig_key_press_controller_support = managers.menu_component.key_press_controller_support
-    managers.menu_component.key_press_controller_support = function(...) end
-
-    self.orig_input_focus = managers.menu_component.input_focus
-    managers.menu_component.input_focus = function(...) return 0 end
-    self.orig_special_btn_pressed = managers.menu_component.special_btn_pressed
-    managers.menu_component.special_btn_pressed = function(...) return false end
-
-    self.orig_confirm_pressed = managers.menu_component.confirm_pressed
-    managers.menu_component.confirm_pressed = function(...) return false end
-
-    self.orig_back_pressed = managers.menu_component.back_pressed
-    managers.menu_component.back_pressed = function(...) return false end
-
-    self.orig_mouse_pressed = managers.menu_component.mouse_pressed
-    managers.menu_component.mouse_pressed = function(...) return false end
-
-    self.orig_input_enabled = managers.menu._input_enabled
-    managers.menu:input_enabled(false)
-    --]]
-
     self.orig_update = managers.menu.update
     managers.menu.update = function(...) end
   end
 
   function GUITextInput:_remove_hooks()
-    --[[
-    managers.menu_component.key_press_controller_support = self.orig_key_press_controller_support
-    managers.menu_component.input_focus = self.orig_input_focus
-
-    managers.menu_component.special_btn_pressed = self.orig_special_btn_pressed
-    managers.menu_component.confirm_pressed = self.orig_confirm_pressed
-    managers.menu_component.back_pressed = self.orig_back_pressed
-    managers.menu_component.mouse_pressed = self.orig_mouse_pressed
-
-    managers.menu:input_enabled(self.orig_input_enabled)
-    --]]
     managers.menu.update = self.orig_update
   end
 
