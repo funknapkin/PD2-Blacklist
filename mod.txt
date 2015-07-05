@@ -18,11 +18,5 @@
       "hook_id"     : "lib/managers/chatmanager",
       "script_path" : "Events.lua"
     }
-  ],
-  "persist_scripts" : [
-    {
-      "global" : "Blacklist",
-      "script_path" : "Blacklist.lua"
-    }
-  ],
+  ]
 }
