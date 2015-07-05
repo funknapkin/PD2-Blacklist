@@ -3,7 +3,7 @@ local import_success_input = pcall(dofile, ModPath .. "/GUITextInput.lua")
 local import_success_popup = pcall(dofile, ModPath .. "/BlacklistPopupMenu.lua")
 if not (import_success_input and import_success_popup) then
   -- Error importing file, log error and force exit
-  Log("Importation error in Blacklist/BlacklistMenu.lua")
+  log("Importation error in Blacklist/BlacklistMenu.lua")
   os.exit()
 end
 

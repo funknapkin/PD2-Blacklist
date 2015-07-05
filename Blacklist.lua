@@ -7,7 +7,7 @@ if not Blacklist then
   local import_success_menu = pcall(dofile, ModPath .. "/BlacklistMenu.lua")
   if not (import_success_assert and import_success_menu) then
     -- Error importing file, log error and force exit
-    Log("Importation error in Blacklist/Blacklist.lua")
+    log("Importation error in Blacklist/Blacklist.lua")
     os.exit()
   end
 
