@@ -504,6 +504,9 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
+    for k,v in pairs(managers) do
+      self:debug_print(tostring(k) .. " -- " .. tostring(v))
+    end
     --[[
     local kb = Input:keyboard()
     self:write_to_chat(tostring(Input:keyboard():down(Idstring("left shift"))))
