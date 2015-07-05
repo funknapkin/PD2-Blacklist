@@ -7,7 +7,12 @@ else
     local old_network_init = NetworkPeer.init
     function NetworkPeer:init(name, rpc, id, loading, synced, in_lobby, character, user_id)
       local retval = old_network_init(self, name, rpc, id, loading, synced, in_lobby, character, user_id)
-      Blacklist:on_peer_added(name, user_id)
+      if type(name) == "string" and type(id) == "number" and type(user_id) == "string" then
+        -- Don't send the message to the Blacklist if the "peer" is the player
+        if id ~= 0 then
+          Blacklist:on_peer_added(name, user_id)
+        end
+      end
       return retval
     end
   end
