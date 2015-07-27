@@ -7,8 +7,8 @@ GUITextInput = class()
 --[[
 Object construction and initialization
 --]]
-function GUITextInput:new(complete_callback) end
-function GUITextInput:init(complete_callback) end
+function GUITextInput:new(title, description, complete_callback) end
+function GUITextInput:init(title, description, complete_callback) end
 
 --[[
 Events
@@ -21,6 +21,8 @@ function GUITextInput:on_key_press(key) end
 Members
 --]]
 GUITextInput.complete_callback = function(text) end
+GUITextInput.title = string
+GUITextInput.description = string
 GUITextInput.text = string
-GUITextInput.workspace
-GUITextInput.panel
+GUITextInput.workspace = workspace
+GUITextInput.panel = panel

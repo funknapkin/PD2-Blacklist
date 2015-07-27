@@ -45,6 +45,10 @@ if not BlacklistPopupMenu then
     local input_complete_callback = function(text)
       self.blacklist_ref:add_user_to_blacklist(user_id, name, text)
     end
-    local input_dialog = GUITextInput:new(input_complete_callback)
+    local input_dialog = GUITextInput:new(
+      "Blacklist player",
+      [[Enter the reason you are blacklisting the user
+      It will be displayed in the chat notification]],
+      input_complete_callback)
   end
 end

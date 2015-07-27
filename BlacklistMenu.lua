@@ -215,7 +215,10 @@ function BlacklistMenu:_add_chat_name_button(parent_menu_id, priority)
     local input_complete_callback = function(text)
       self.blacklist_ref:set_chat_name(text)
     end
-    local input_dialog = GUITextInput:new(input_complete_callback)
+    local input_dialog = GUITextInput:new(
+      "Chat name",
+      "Enter a new chat name, used to display notifications in chat",
+      input_complete_callback)
   end
   MenuHelper:AddButton({
     id = "blacklist_button_chat_name",
@@ -235,7 +238,10 @@ function BlacklistMenu:_add_chat_color_button(parent_menu_id, priority)
     local input_complete_callback = function(text)
       self.blacklist_ref:set_chat_color(text)
     end
-    local input_dialog = GUITextInput:new(input_complete_callback)
+    local input_dialog = GUITextInput:new(
+      "Chat color",
+      "Enter a new chat color, used to display notifications in chat",
+      input_complete_callback)
   end
   MenuHelper:AddButton({
     id = "blacklist_button_chat_color",

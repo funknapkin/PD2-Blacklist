@@ -504,20 +504,18 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
-    for k,v in pairs(managers) do
-      self:debug_print(tostring(k) .. " -- " .. tostring(v))
+    local import_success_input = pcall(dofile, ModPath .. "/GUITextInput.lua")
+    if not import_success_input then
+      return
     end
-    --[[
-    local kb = Input:keyboard()
-    self:write_to_chat(tostring(Input:keyboard():down(Idstring("left shift"))))
-
-    local workspace = Overlay:gui():create_screen_workspace()
-    workspace:connect_keyboard(kb)
-    local panel = workspace:panel({ name = "workspace_panel" })
-
-    panel:enter_text(function(...) self:write_to_chat('Text entered') end)
-    panel:key_press(function(...) self:write_to_chat('Key pressed') end)
-    --]]
+    local test = GUITextInput:new(
+      "This is a test box with an unusually large title, so long in fact that it will go out of the box if there is no text wrapping",
+      [[This is a test description
+      in a long string
+      over multiple lines
+      here's some garbage to test text wrapping: aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhh]],
+      function(...) return end
+    )
     self:write_to_chat("Tests finished")
   end
 

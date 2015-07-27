@@ -4,11 +4,23 @@ if not GUITextInput then
   --[[
   Initialize a text input dialog.
   Args:
+    title:             Title for the window
+    description:       Description of what the user should enter in the text input
     complete_callback: function to call when text input is complete. Should accept
                        one argument, which will contain the text entered by the
                        user.
   --]]
-  function GUITextInput:init(complete_callback)
+  function GUITextInput:init(title, description, complete_callback)
+    -- Verify inputs
+    if type(title) ~= "string" or
+      type(description) ~= "string" or
+      type(complete_callback) ~= "function"
+    then
+      return
+    end
+
+    self.title = title
+    self.description = description
     self.complete_callback = complete_callback
     self.text = ""
     -- Get hook to the keyboard input
@@ -59,12 +71,14 @@ if not GUITextInput then
 
   function GUITextInput:on_enter_text(char)
     self.text = self.text .. char
+    self:_draw_ui()
   end
 
   function GUITextInput:on_key_press(key)
     if key == Idstring("backspace") then
       -- Remove the last character for the text entered
       self.text = self.text:sub(1, -2)
+      self:_draw_ui()
     elseif key == Idstring("enter") then
       -- User pressed the Enter key. Exit input mode.
       self:on_input_complete(false)
@@ -88,71 +102,110 @@ if not GUITextInput then
   end
 
   function GUITextInput:_draw_ui()
-  -- Show a rectangle with some default text on it, to test the display functions
-  -- Known issue: everything is drawn under the Payday menu
-  -- TODO: use "const" variables to define size, position, etc.
-  -- TODO: get the game's resolution and adjust display
-  self.gui_items.background = self.gui_items.background or self.panel:rect({
-    name = "bg",
-    x = 660,
-    y = 340,
-    w = 600,
-    h = 400,
-    blend_mode = "normal",
-    color = Color.black,
-    layer = 100 })
-  self.gui_items.left_border = self.gui_items.left_border or self.panel:rect({
-    name = "left_border",
-    x = 660,
-    y = 340,
-    w = 3,
-    h = 400,
-    blend_mode = "normal",
-    color = Color.white,
-    layer = 100 })
-  self.gui_items.right_border = self.gui_items.right_border or self.panel:rect({
-    name = "right_border",
-    x = 1260 - 3,
-    y = 340,
-    w = 3,
-    h = 400,
-    blend_mode = "normal",
-    color = Color.white,
-    layer = 100 })
-  self.gui_items.top_border = self.gui_items.top_border or self.panel:rect({
-    name = "top_border",
-    x = 660,
-    y = 340,
-    w = 600,
-    h = 3,
-    blend_mode = "normal",
-    color = Color.white,
-    layer = 100 })
-  self.gui_items.bottom_border = self.gui_items.bottom_border or self.panel:rect({
-    name = "bottom_border",
-    x = 660,
-    y = 740 - 3,
-    w = 600,
-    h = 3,
-    blend_mode = "normal",
-    color = Color.white,
-    layer = 100 })
-  self.gui_items.header = self.gui_items.header or self.panel:text({
-    name = "header",
-    x = 0,
-    y = 340 + 10,
-    h = tweak_data.menu.pd2_small_font_size * 1.5,
-    align = "center",
-    vertical = "center",
-    color = Color.white,
-    layer = 101,
-    font = tweak_data.menu.pd2_small_font,
-    font_size = tweak_data.menu.pd2_small_font_size * 1.25 })
-  self.gui_items.header:set_text("Test header")
+    -- Define constants
+    local FIRST_LAYER = 100
+    local BOX_ORIGIN_X = 660 -- TODO: use the game's resolution to compute this
+    local BOX_ORIGIN_Y = 340 -- TODO: see above
+    local BOX_WIDTH = 600
+    local BOX_HEIGHT = 400
+    local BORDER_WIDTH = 3
+    local TEXT_HORIZONTAL_PADDING = 10
 
-  -- TODO: show a panel that displays the text entered
-  -- Should have 3 text areas: the header, the prompt, the input area
-  -- Note: verify that text wrapping works for the input area
+    -- Draw the box that contains the text input UI
+    self.gui_items.background = self.gui_items.background or self.panel:rect({
+      name = "bg",
+      x = BOX_ORIGIN_X,
+      y = BOX_ORIGIN_Y,
+      w = BOX_WIDTH,
+      h = BOX_HEIGHT,
+      blend_mode = "normal",
+      color = Color.black,
+      layer = FIRST_LAYER })
+    self.gui_items.left_border = self.gui_items.left_border or self.panel:rect({
+      name = "left_border",
+      x = BOX_ORIGIN_X,
+      y = BOX_ORIGIN_Y,
+      w = BORDER_WIDTH,
+      h = BOX_HEIGHT,
+      blend_mode = "normal",
+      color = Color.white,
+      layer = FIRST_LAYER })
+    self.gui_items.right_border = self.gui_items.right_border or self.panel:rect({
+      name = "right_border",
+      x = BOX_ORIGIN_X + BOX_WIDTH - BORDER_WIDTH,
+      y = BOX_ORIGIN_Y,
+      w = BORDER_WIDTH,
+      h = BOX_HEIGHT,
+      blend_mode = "normal",
+      color = Color.white,
+      layer = FIRST_LAYER })
+    self.gui_items.top_border = self.gui_items.top_border or self.panel:rect({
+      name = "top_border",
+      x = BOX_ORIGIN_X,
+      y = BOX_ORIGIN_Y,
+      w = BOX_WIDTH,
+      h = BORDER_WIDTH,
+      blend_mode = "normal",
+      color = Color.white,
+      layer = FIRST_LAYER })
+    self.gui_items.bottom_border = self.gui_items.bottom_border or self.panel:rect({
+      name = "bottom_border",
+      x = BOX_ORIGIN_X,
+      y = BOX_ORIGIN_Y + BOX_HEIGHT - BORDER_WIDTH,
+      w = BOX_WIDTH,
+      h = BORDER_WIDTH,
+      blend_mode = "normal",
+      color = Color.white,
+      layer = FIRST_LAYER })
+
+    -- Draw the title
+    self.gui_items.header = self.gui_items.header or self.panel:text({
+      name = "header",
+      x = 0,
+      y = BOX_ORIGIN_Y + 10,
+      align = "center",
+      vertical = "top",
+      color = Color.white,
+      layer = FIRST_LAYER + 1,
+      font = tweak_data.menu.pd2_small_font,
+      font_size = tweak_data.menu.pd2_small_font_size * 1.25 })
+    self.gui_items.header:set_text(self.title)
+
+    -- Draw the description
+    self.gui_items.description = self.gui_items.description or self.panel:text({
+      name = "description",
+      x = BOX_ORIGIN_X + TEXT_HORIZONTAL_PADDING,
+      y = math.floor(BOX_ORIGIN_Y + (BOX_HEIGHT / 3)),
+      w = BOX_WIDTH - ( 2 * TEXT_HORIZONTAL_PADDING ),
+      align = "left",
+      vertical = "top",
+      color = Color.white,
+      layer = FIRST_LAYER + 1,
+      font = tweak_data.menu.pd2_small_font,
+      font_size = tweak_data.menu.pd2_small_font_size })
+    self.gui_items.description:set_text(self.description)
+
+    -- Draw the input text
+    self.gui_items.text_input = self.gui_items.text_input or self.panel:text({
+      name = "text input",
+      x = BOX_ORIGIN_X + TEXT_HORIZONTAL_PADDING,
+      y = math.floor(BOX_ORIGIN_Y + (BOX_HEIGHT * 2 / 3)),
+      w = BOX_WIDTH - ( 2 * TEXT_HORIZONTAL_PADDING ),
+      align = "left",
+      vertical = "top",
+      color = Color.white,
+      layer = FIRST_LAYER + 1,
+      font = tweak_data.menu.pd2_small_font,
+      font_size = tweak_data.menu.pd2_small_font_size })
+    self.gui_items.text_input:set_text(self.text)
+
+    -- TODO: implement text wrapping
+
+    -- Known issues
+    -- TODO move these in the mod description / git ticket
+    --  - If title is too large, it will go out of the box
+    --  - If the description is too large, it can go over the text input already
+    --  - If the text input is too long, it can go outside of the box
   end
 
 end
