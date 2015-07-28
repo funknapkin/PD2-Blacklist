@@ -183,7 +183,7 @@ if not GUITextInput then
       layer = FIRST_LAYER + 1,
       font = tweak_data.menu.pd2_small_font,
       font_size = tweak_data.menu.pd2_small_font_size })
-    self.gui_items.description:set_text(self.description)
+    self.gui_items.description:set_text(wrap_text(self.description, 85))
 
     -- Draw the input text
     self.gui_items.text_input = self.gui_items.text_input or self.panel:text({
@@ -197,15 +197,56 @@ if not GUITextInput then
       layer = FIRST_LAYER + 1,
       font = tweak_data.menu.pd2_small_font,
       font_size = tweak_data.menu.pd2_small_font_size })
-    self.gui_items.text_input:set_text(self.text)
-
-    -- TODO: implement text wrapping
+    self.gui_items.text_input:set_text(wrap_text(self.text, 85))
 
     -- Known issues
     -- TODO move these in the mod description / git ticket
     --  - If title is too large, it will go out of the box
     --  - If the description is too large, it can go over the text input already
     --  - If the text input is too long, it can go outside of the box
+  end
+
+  --[[
+  Wrap the text of a string so that each line has at most `length` characters.
+  This function will also remove empty lines
+
+  Args:
+    input: the input string
+    length: number of character per line the output string should have
+
+  Returns:
+    The wrapped string
+  --]]
+  function wrap_text(input, length)
+    local output = ""
+    -- Verify arguments
+    if type(input) ~= "string" or type(length) ~= "number" or length <= 0 then
+      log("[ERROR] Invalid arguments for function wrap_text in GUITextInput.lua")
+      return output
+    end
+
+    -- The first line has no newline character
+    local first_line = true
+    for line in input:gmatch("[^\r\n]+") do
+      -- Add newline character if necessary
+      if first_line == true then
+        first_line = false
+      else
+        output = output .. "\n"
+      end
+      -- Split the line
+      local lines_to_add = math.ceil(#line / length)
+      for new_line_index = 1,lines_to_add do
+        if new_line_index ~= 1 then
+          output = output .. "\n"
+        end
+        local first_char_index = (new_line_index - 1) * length + 1
+        local last_char_index = first_char_index + length
+        output = output .. line:sub(first_char_index, last_char_index)
+      end
+    end
+
+    return output
   end
 
 end

@@ -48,7 +48,7 @@ if not BlacklistPopupMenu then
     local input_dialog = GUITextInput:new(
       "Blacklist player",
       [[Enter the reason you are blacklisting the user
-      It will be displayed in the chat notification]],
+It will be displayed in the chat notification]],
       input_complete_callback)
   end
 end

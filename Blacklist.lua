@@ -511,9 +511,9 @@ if not Blacklist then
     local test = GUITextInput:new(
       "This is a test box with an unusually large title, so long in fact that it will go out of the box if there is no text wrapping",
       [[This is a test description
-      in a long string
-      over multiple lines
-      here's some garbage to test text wrapping: aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhh]],
+in a long string
+over multiple lines
+here's some garbage to test text wrapping: aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhh]],
       function(...) return end
     )
     self:write_to_chat("Tests finished")
