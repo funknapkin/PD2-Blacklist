@@ -122,10 +122,8 @@ if not Blacklist then
     true if file was written, false if an error occured.
   --]]
   function Blacklist:save_user_list()
-    -- Create json string and make it human-readable
-    -- Some usernames might mess with the formatting. Should be rare.
+    -- Create json string
     local json_string = json.encode(self.users)
-    json_string = json_string:gsub("(\".-\":%[\".-\",\".-\"%])", "%1\n")
     -- Save json string to file
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_userlist.json"
