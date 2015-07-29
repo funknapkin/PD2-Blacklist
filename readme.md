@@ -26,4 +26,5 @@ remember the last 10 users you connected to.
 
 Known issues
 ============
- * The text input UI is a bit wonky, but it works
+ * The text input UI is a bit wonky, but it works;
+ * The text input UI is drawn under the Payday menu.
