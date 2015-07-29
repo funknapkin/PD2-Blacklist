@@ -104,10 +104,10 @@ if not GUITextInput then
   function GUITextInput:_draw_ui()
     -- Define constants
     local FIRST_LAYER = 100
-    local BOX_ORIGIN_X = 660 -- TODO: use the game's resolution to compute this
-    local BOX_ORIGIN_Y = 340 -- TODO: see above
     local BOX_WIDTH = 600
     local BOX_HEIGHT = 400
+    local BOX_ORIGIN_X = (RenderSettings.resolution.x - BOX_WIDTH) / 2
+    local BOX_ORIGIN_Y = (RenderSettings.resolution.y - BOX_HEIGHT) / 2
     local BORDER_WIDTH = 3
     local TEXT_HORIZONTAL_PADDING = 10
 
