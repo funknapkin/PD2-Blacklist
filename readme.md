@@ -13,8 +13,8 @@ you, either when you join their game or they join yours.
 Installation
 ============
  1. Install [BLT](http://paydaymods.com/download/)
- 2. Download this mod (from the bar on the right) and copy the content of the
-    *Blacklist* folder into your *mods* folder (typically *C:\Program Files (x86)\Steam\steamapps\common\PAYDAY 2\mods*)
+ 2. Download this mod (from the bar on the right) and copy the *Blacklist*
+    folder into your *mods* folder (typically *C:\Program Files (x86)\Steam\steamapps\common\PAYDAY 2\mods*)
 
 
 Usage
