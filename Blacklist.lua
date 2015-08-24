@@ -102,6 +102,8 @@ if not Blacklist then
   the blacklist with an empty list.
   --]]
   function Blacklist:load_user_list()
+    -- Fallback value in case loading fails
+    self.users = {}
     -- Load the json file's content into the json object
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_userlist.json"
@@ -109,10 +111,15 @@ if not Blacklist then
     local file = io.open(filepath, "r")
     if file then
       json_string = file:read("*a")
-      self.users = json.decode(json_string)
       file:close()
-    else
-      self.users = {}
+      -- Workaround for a bug: pcall doesn't catch the errors thrown by json.decode
+      -- We avoid trying to decode en empty array
+      if json_string ~= "[]" then
+        local decode_success, users = pcall(json.decode, json_string)
+        if decode_success then
+          self.users = users
+        end
+      end
     end
   end
 
@@ -122,18 +129,20 @@ if not Blacklist then
     true if file was written, false if an error occured.
   --]]
   function Blacklist:save_user_list()
-    -- Create json string
-    local json_string = json.encode(self.users)
-    -- Save json string to file
-    local directory = SavePath or ""
-    local filepath = directory .. "blacklist_userlist.json"
-    local file = io.open(filepath, "w")
-    if file then
-      file:write(json_string)
-      file:close()
-      return true
-    else
-      return false
+    if #self.users > 0 then
+      -- Create json string
+      local json_string = json.encode(self.users)
+      -- Save json string to file
+      local directory = SavePath or ""
+      local filepath = directory .. "blacklist_userlist.json"
+      local file = io.open(filepath, "w")
+      if file then
+        file:write(json_string)
+        file:close()
+        return true
+      else
+        return false
+      end
     end
   end
 
