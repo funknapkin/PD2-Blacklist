@@ -1,0 +1,17 @@
+- Improve text input class
+  - Draw the input box on top of the menus
+
+Code cleanup:
+- More error checks (arguments, nil values, asserts for members, built-in functions error codes)
+- Find a better way to make global variables, for backlog and last users list
+- Unit tests
+- Script to make release .zip
+- Make ticket on github, telling me to fix possible performance issue when
+  adding new user to blacklist (json save/load)
+- BLT feature request: have an option for MenuHelper:AddMultipleChoice to use
+  non-localized data
+- Make a class to encapsulate the user data (name, user_id, reason for ban, etc)
+  Use this class where appropriate
+
+Before release:
+- Remove all uses of debug_print
