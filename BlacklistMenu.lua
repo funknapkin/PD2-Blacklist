@@ -225,7 +225,8 @@ function BlacklistMenu:_add_chat_name_button(parent_menu_id, priority)
     end
     local input_dialog = GUITextInput:new(
       "Chat name",
-      "Enter a new chat name, used to display notifications in chat",
+      "Enter a new chat name, used to display notifications in chat.\n"
+      .. "The current chat name is \"" .. self.blacklist_ref:get_chat_name() .. "\".",
       input_complete_callback)
   end
   MenuHelper:AddButton({
