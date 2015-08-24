@@ -248,7 +248,9 @@ function BlacklistMenu:_add_chat_color_button(parent_menu_id, priority)
     end
     local input_dialog = GUITextInput:new(
       "Chat color",
-      "Enter a new chat color, used to display notifications in chat",
+      "Enter a new chat color, used to display notifications in chat. "
+      .. "The format is either \"RRGGBB\" or \"AARRGGBB\", in hexadecimal (example: 00FFFF for cyan).\n"
+      .. "The current chat color is " .. self.blacklist_ref:get_chat_color():upper() .. ".",
       input_complete_callback)
   end
   MenuHelper:AddButton({
