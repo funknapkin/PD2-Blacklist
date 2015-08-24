@@ -16,6 +16,7 @@ Events
 function GUITextInput:on_input_complete(canceled) end
 function GUITextInput:on_enter_text(char) end
 function GUITextInput:on_key_press(key) end
+function GUITextInput:on_key_release(key) end
 
 --[[
 Members

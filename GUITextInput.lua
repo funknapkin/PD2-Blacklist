@@ -33,6 +33,7 @@ if not GUITextInput then
     -- Set the callbacks on keyboard events
     self.panel:enter_text(function(that, char) self:on_enter_text(char) end)
     self.panel:key_press(function(that, key) self:on_key_press(key) end)
+    self.panel:key_release(function(that, key) self:on_key_release(key) end)
 
     -- Inject code in the Payday 2 managers to prevent key presses from processing
     self:_inject_hooks()
@@ -49,24 +50,11 @@ if not GUITextInput then
   end
 
   function GUITextInput:on_input_complete(canceled)
-    -- Remove the hooks that hijack code to prevent key presses from processing
-    self:_remove_hooks()
-
-    -- Clean up members
-    self.panel:enter_text(nil)
-    self.panel:key_press(nil)
-    self.workspace:disconnect_keyboard()
-    Overlay:gui():destroy_workspace(self.workspace)
     -- Call the callback function if the user didn't cancel input by pressing
     -- escape
     if not canceled then
       self.complete_callback(self.text)
     end
-    -- Destroy members
-    self.complete_callback = nil
-    self.text = nil
-    self.workspace = nil
-    self.panel = nil
   end
 
   function GUITextInput:on_enter_text(char)
@@ -85,6 +73,29 @@ if not GUITextInput then
     elseif key == Idstring("esc") then
       -- User pressed the Escape key. Exit input mode.
       self:on_input_complete(true)
+    end
+  end
+
+  function GUITextInput:on_key_release(key)
+    if key == Idstring("enter") or key == Idstring("esc") then
+      -- User left input mode, cleanup hooks.
+      -- This has to be done after the key has been released, to prevent keypresses
+      -- from trigerring on the underlying menu
+
+      -- Remove the hooks that hijack code to prevent key presses from processing
+      self:_remove_hooks()
+
+      -- Clean up members
+      self.panel:enter_text(nil)
+      self.panel:key_press(nil)
+      self.workspace:disconnect_keyboard()
+      Overlay:gui():destroy_workspace(self.workspace)
+      
+      -- Destroy members
+      self.complete_callback = nil
+      self.text = nil
+      self.workspace = nil
+      self.panel = nil
     end
   end
 
