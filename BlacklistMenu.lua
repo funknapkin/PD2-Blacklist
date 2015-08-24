@@ -106,6 +106,11 @@ function BlacklistMenu:_add_remove_player_from_blacklist_selector(parent_menu_id
   end
   table.sort(users, sortTuplesByFirstElements)
 
+  -- If there are no users to remove, create a default entry to display the choice menu
+  if #users < 1 then
+    users = {{"", "dummy_steam_id"}}
+  end
+
   -- Build an array of usernames to display and add them to BLT's localization
   -- data, because it's silly and won't take raw strings
   local user_names = {}
@@ -119,10 +124,13 @@ function BlacklistMenu:_add_remove_player_from_blacklist_selector(parent_menu_id
   LocalizationManager:add_localized_strings(localized_strings)
 
   -- Initialize the callback for the choice
-    self.userid_for_removal = users[1][2]
-    MenuCallbackHandler.blacklist_choice_remove_player_callback = function(this, item)
+  self.userid_for_removal = users[1][2]
+  MenuCallbackHandler.blacklist_choice_remove_player_callback = function(this, item)
+    local index_for_removal = item._current_index
+    if #users >= index_for_removal then
       self.userid_for_removal = users[item._current_index][2]
     end
+  end
 
   MenuHelper:AddMultipleChoice({
       id = "blacklist_choice_remove_player",
