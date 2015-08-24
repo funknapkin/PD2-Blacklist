@@ -12,6 +12,7 @@ Code cleanup:
   non-localized data
 - Make a class to encapsulate the user data (name, user_id, reason for ban, etc)
   Use this class where appropriate
+- Make a script to pack the mod in a .zip
 
 Before release:
 - Remove all uses of debug_print
