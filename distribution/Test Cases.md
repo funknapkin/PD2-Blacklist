@@ -6,6 +6,6 @@
   - Show not banned users
 4. Play a game with noone in the blacklist: verify that noone gets matched
 5. Add a friend to the blacklist
-6. Play a game with him: verify that noone gets matched
+6. Play a game with him: verify that he gets matched
 7. Remove all users from the blacklist
 8. Restart game: verify that it initializes properly
