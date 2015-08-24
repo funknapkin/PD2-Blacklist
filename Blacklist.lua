@@ -129,20 +129,18 @@ if not Blacklist then
     true if file was written, false if an error occured.
   --]]
   function Blacklist:save_user_list()
-    if #self.users > 0 then
-      -- Create json string
-      local json_string = json.encode(self.users)
-      -- Save json string to file
-      local directory = SavePath or ""
-      local filepath = directory .. "blacklist_userlist.json"
-      local file = io.open(filepath, "w")
-      if file then
-        file:write(json_string)
-        file:close()
-        return true
-      else
-        return false
-      end
+    -- Create json string
+    local json_string = json.encode(self.users)
+    -- Save json string to file
+    local directory = SavePath or ""
+    local filepath = directory .. "blacklist_userlist.json"
+    local file = io.open(filepath, "w")
+    if file then
+      file:write(json_string)
+      file:close()
+      return true
+    else
+      return false
     end
   end
 
