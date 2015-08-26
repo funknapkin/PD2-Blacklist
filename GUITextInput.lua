@@ -23,6 +23,7 @@ if not GUITextInput then
     self.description = description
     self.complete_callback = complete_callback
     self.text = ""
+    self.state = "input"
     -- Get hook to the keyboard input
     self.workspace = Overlay:gui():create_screen_workspace()
     local kb = Input:keyboard()
@@ -50,6 +51,7 @@ if not GUITextInput then
   end
 
   function GUITextInput:on_input_complete(canceled)
+    self.state = "leaving"
     -- Call the callback function if the user didn't cancel input by pressing
     -- escape
     if not canceled then
@@ -77,7 +79,9 @@ if not GUITextInput then
   end
 
   function GUITextInput:on_key_release(key)
-    if key == Idstring("enter") or key == Idstring("esc") then
+    if self.state == "leaving" and
+       key == Idstring("enter") or key == Idstring("esc")
+    then
       -- User left input mode, cleanup hooks.
       -- This has to be done after the key has been released, to prevent keypresses
       -- from trigerring on the underlying menu
@@ -90,7 +94,7 @@ if not GUITextInput then
       self.panel:key_press(nil)
       self.workspace:disconnect_keyboard()
       Overlay:gui():destroy_workspace(self.workspace)
-      
+
       -- Destroy members
       self.complete_callback = nil
       self.text = nil

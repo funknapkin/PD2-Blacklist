@@ -27,3 +27,4 @@ GUITextInput.description = string
 GUITextInput.text = string
 GUITextInput.workspace = workspace
 GUITextInput.panel = panel
+GUITextInput.state = string
