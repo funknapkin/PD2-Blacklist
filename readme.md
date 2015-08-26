@@ -1,7 +1,7 @@
 About this mod
 ==============
 
-**This is a public**
+**This is a public beta**
 
 This mod adds a blacklist in Payday 2. It tracks users using their steam id, so
 once someone has been added there is no way he can avoid it.
