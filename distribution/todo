@@ -1,5 +1,8 @@
-- Improve text input class
-  - Draw the input box on top of the menus
+Improve text input class
+- Draw the input box on top of the menus
+
+Other
+- Start maintaining a changelog, and update the version number on new releases
 
 Code cleanup:
 - More error checks (arguments, nil values, asserts for members, built-in functions error codes)
@@ -13,6 +16,3 @@ Code cleanup:
 - Make a class to encapsulate the user data (name, user_id, reason for ban, etc)
   Use this class where appropriate
 - Make a script to pack the mod in a .zip
-
-Before release:
-- Remove all uses of debug_print
