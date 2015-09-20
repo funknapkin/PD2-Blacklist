@@ -28,7 +28,7 @@ if not GUITextInput then
     self.workspace = Overlay:gui():create_screen_workspace()
     local kb = Input:keyboard()
     self.workspace:connect_keyboard(kb)
-    self.panel = self.workspace:panel({ name = "workspace_panel" })
+    self.panel = self.workspace:panel({ name = "blacklist_panel" })
     self.gui_items = {}
 
     -- Set the callbacks on keyboard events
@@ -118,7 +118,7 @@ if not GUITextInput then
 
   function GUITextInput:_draw_ui()
     -- Define constants
-    local FIRST_LAYER = 100
+    local FIRST_LAYER = 10000 -- Draw on top of everything
     local BOX_WIDTH = 600
     local BOX_HEIGHT = 400
     local BOX_ORIGIN_X = (RenderSettings.resolution.x - BOX_WIDTH) / 2
