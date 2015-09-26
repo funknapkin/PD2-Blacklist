@@ -18,16 +18,5 @@
       "hook_id"     : "lib/managers/chatmanager",
       "script_path" : "Events.lua"
     }
-  ],
-  "keybinds" : [
-    {
-      "keybind_id" : "blacklist_run_tests",
-      "name" : "Run tests (Blacklist)",
-      "description" : "Show a random mission in the chat box (broadcast)",
-      "script_path" : "run_tests.lua",
-      "run_in_menu" : true,
-      "run_in_game" : true,
-      "localized" : false
-    }
   ]
 }

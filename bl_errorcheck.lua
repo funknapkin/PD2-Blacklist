@@ -1,4 +1,4 @@
-local is_release_build = false
+local is_release_build = true
 
 local function log_message_and_callstack(message)
   -- Build the string to log

@@ -55,12 +55,6 @@ function Blacklist:add_user_to_blacklist(user_id, username, reason) end
 function Blacklist:remove_user_from_blacklist(user_id) end
 
 --[[
-Debug functions
---]]
-function Blacklist:debug_print(msg) end
-function Blacklist:run_tests() end
-
---[[
 Members (private)
 --]]
 Blacklist.show_banned = bool

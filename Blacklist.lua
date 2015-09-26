@@ -487,32 +487,5 @@ if not Blacklist then
     end
   end
 
-  --[[
-    Function to write a message to a text file. Used for development and
-    debug purposes.
-  --]]
-  function Blacklist:debug_print(msg)
-    local directory = LogsPath or ""
-    local filepath = directory .. "blacklist.log"
-    local file = io.open(filepath, "a")
-    if file then
-      file:write(tostring(msg) .. "\r\n")
-      file:close()
-      return true
-    else
-      return false
-    end
-  end
-
-  --[[
-  Function to help development by running a few tests.
-  --]]
-  function Blacklist:run_tests()
-    self:write_to_chat("Running tests")
-    bl_check(false, "First error")
-    bl_check(false)
-    self:write_to_chat("Tests finished")
-  end
-
   Blacklist:init()
 end
