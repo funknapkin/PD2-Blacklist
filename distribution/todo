@@ -1,10 +1,6 @@
- Other
-- Start maintaining a changelog, and update the version number on new releases
-- Reorder functions in alphabetical order
-- Remove debug code from the release version
-
 Code cleanup:
 - More error checks (arguments, nil values, asserts for members, built-in functions error codes)
+- Reorder functions in alphabetical order
 - Find a better way to make global variables, for backlog and last users list
 - Unit tests
 - Script to make release .zip
