@@ -1,8 +1,7 @@
-Improve text input class
-- Draw the input box on top of the menus
-
-Other
+ Other
 - Start maintaining a changelog, and update the version number on new releases
+- Reorder functions in alphabetical order
+- Remove debug code from the release version
 
 Code cleanup:
 - More error checks (arguments, nil values, asserts for members, built-in functions error codes)

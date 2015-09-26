@@ -3,17 +3,13 @@ if not Blacklist then
   -- i.e. lobby->planning->game
 
   -- Import scripts needed for the Blacklist mod
-  local import_success_assert = pcall(dofile, ModPath .. "/assert.lua")
+  local import_success_errorcheck = pcall(dofile, ModPath .. "/bl_errorcheck.lua")
   local import_success_menu = pcall(dofile, ModPath .. "/BlacklistMenu.lua")
-  if not (import_success_assert and import_success_menu) then
+  if not (import_success_errorcheck and import_success_menu) then
     -- Error importing file, log error and force exit
     log("Importation error in Blacklist/Blacklist.lua")
     os.exit()
   end
-
-  -- Overwrite the assert function for this script only. Necessary to do this
-  -- here since BLT doesn't seem to support the "require" function...
-  local assert = bl_assert
 
   Blacklist = {}
 
@@ -40,6 +36,7 @@ if not Blacklist then
     self.show_not_banned = false
     self.chat_name = "Blacklist"
     self.chat_color = "ffff0000" -- argb
+
     -- Load the json file's content into the json object
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_config.json"
@@ -50,21 +47,20 @@ if not Blacklist then
       json_string = file:read("*a")
       json_object = json.decode(json_string)
       file:close()
-    else
-      json_object = {}
-    end
-    -- Assign values from the config to this object
-    if json_object["show_banned"] ~= nil then
-      self:set_show_banned(json_object["show_banned"])
-    end
-    if json_object["show_not_banned"] ~= nil then
-      self:set_show_not_banned(json_object["show_not_banned"])
-    end
-    if json_object["chat_name"] ~= nil then
-      self:set_chat_name(json_object["chat_name"])
-    end
-    if json_object["chat_color"] ~= nil then
-      self:set_chat_color(json_object["chat_color"])
+
+      -- If the config file exists, everything value should be defined
+      if bl_check(json_object["config_version"] ~= nil, "config_version undefined in config file") and
+         bl_check(json_object["show_banned"] ~= nil, "show_banned undefined in config file") and
+         bl_check(json_object["show_not_banned"] ~= nil, "show_not_banned undefined in config file") and
+         bl_check(json_object["chat_name"] ~= nil, "chat_name undefined in config file") and
+         bl_check(json_object["chat_color"] ~= nil, "chat_color undefined in config file")
+      then
+        -- Assign values from the config to this object
+        self:set_show_banned(json_object["show_banned"])
+        self:set_show_not_banned(json_object["show_not_banned"])
+        self:set_chat_name(json_object["chat_name"])
+        self:set_chat_color(json_object["chat_color"])
+      end
     end
   end
 
@@ -88,7 +84,7 @@ if not Blacklist then
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_config.json"
     local file = io.open(filepath, "w")
-    if file then
+    if bl_check(file, "Failed to save config file.") then
       file:write(json_string)
       file:close()
       return true
@@ -135,7 +131,7 @@ if not Blacklist then
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_userlist.json"
     local file = io.open(filepath, "w")
-    if file then
+    if bl_check(file, "Failed to save user list") then
       file:write(json_string)
       file:close()
       return true
@@ -173,15 +169,16 @@ if not Blacklist then
   written to a file.
   --]]
   function Blacklist:add_to_backlog(message)
-    assert(type(message) == "string", "Wrong argument type in add_to_backlog")
-    if message == "" then
+    if bl_check(type(message) == "string", "Wrong argument type in add_to_backlog") or
+       message == ""
+    then
       return
     end
 
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_backlog.txt"
     local file = io.open(filepath, "a")
-    if file then
+    if bl_check(file, "Failed to write the chat backlog") then
       file:write(message .. "\n")
       file:close()
     end
@@ -196,7 +193,7 @@ if not Blacklist then
     if not (managers and
             managers.chat and
             managers.chat._receivers and
-            managers.chat._receivers[1] )
+            managers.chat._receivers[1])
     then
       return
     end
@@ -222,18 +219,6 @@ if not Blacklist then
   end
 
   --[[
-  Check all connected players to see if they are in the blacklist.
-  Displays a message for each user in the blacklist.
-  --]]
-  function Blacklist:manual_check()
-    for _, peer in pairs(managers.network:session():peers()) do
-      local name = peer:name()
-      local user_id = peer:user_id()
-      self:on_peer_added(name, user_id)
-    end
-  end
-
-  --[[
   Add a user to the last users list.
   Args:
     name: Name of the user to add (string)
@@ -242,8 +227,11 @@ if not Blacklist then
     true if the user was added successfully, false otherwise
   --]]
   function Blacklist:add_user_to_last_users_list(name, user_id)
-    assert(type(name) == "string", "Wrong argument type in add_user_to_last_users_list")
-    assert(type(user_id) == "string", "Wrong argument type in add_user_to_last_users_list")
+    if not bl_check(type(name) == "string", "Wrong argument type for name in add_user_to_last_users_list") or
+       not bl_check(type(user_id) == "string", "Wrong argument type for user_id in add_user_to_last_users_list")
+    then
+      return false
+    end
 
     local last_users_list = self:get_last_users_list()
 
@@ -272,7 +260,7 @@ if not Blacklist then
     local directory = SavePath or ""
     local filepath = directory .. "blacklist_last_users.json"
     local file = io.open(filepath, "w")
-    if file then
+    if bl_check(file, "Failed to write the last connected users list") then
       file:write(json_string)
       file:close()
       return true
@@ -309,8 +297,11 @@ if not Blacklist then
   option to display all users is enabled.
   --]]
   function Blacklist:on_peer_added(name, user_id)
-    assert(type(name) == "string", "Wrong argument type in on_peer_added")
-    assert(type(user_id) == "string", "Wrong argument type in on_peer_added")
+    if not bl_check(type(name) == "string", "Wrong argument type for name in on_peer_added") or
+       not bl_check(type(user_id) == "string", "Wrong argument type for user_id in on_peer_added")
+    then
+      return
+    end
 
     -- Log user
     self:add_user_to_last_users_list(name, user_id)
@@ -338,6 +329,7 @@ if not Blacklist then
   game.
   --]]
   function Blacklist:get_show_banned()
+    bl_assert(self.show_banned ~= nil, "show_banned member not initialized")
     return self.show_banned
   end
 
@@ -346,7 +338,7 @@ if not Blacklist then
   game.
   --]]
   function Blacklist:set_show_banned(new_show_banned)
-    assert(type(new_show_banned) == "boolean", "Wrong argument type in set_show_banned")
+    bl_assert(type(new_show_banned) == "boolean", "Wrong argument type in set_show_banned")
     self.show_banned = new_show_banned
   end
 
@@ -354,6 +346,7 @@ if not Blacklist then
   blacklist join the game
   --]]
   function Blacklist:get_show_not_banned()
+    bl_assert(self.show_not_banned ~= nil, "show_not_banned member not initialized")
     return self.show_not_banned
   end
 
@@ -362,7 +355,7 @@ if not Blacklist then
   blacklist join the game
   --]]
   function Blacklist:set_show_not_banned(new_show_not_banned)
-    assert(type(new_show_not_banned) == "boolean", "Wrong argument type in set_show_not_banned")
+    bl_assert(type(new_show_not_banned) == "boolean", "Wrong argument type in set_show_not_banned")
     self.show_not_banned = new_show_not_banned
   end
 
@@ -370,6 +363,7 @@ if not Blacklist then
   Get the username used by the blacklist when showing chat messages
   --]]
   function Blacklist:get_chat_name()
+    bl_assert(self.chat_name ~= nil, "chat_name member not initialized")
     return self.chat_name
   end
 
@@ -377,7 +371,7 @@ if not Blacklist then
   Set the username used by the blacklist when showing chat messages
   --]]
   function Blacklist:set_chat_name(new_chat_name)
-    assert(type(new_chat_name) == "string", "Wrong argument type in new_chat_name")
+    bl_assert(type(new_chat_name) == "string", "Wrong argument type in new_chat_name")
     self.chat_name = new_chat_name
   end
 
@@ -386,6 +380,7 @@ if not Blacklist then
   is used for the username of the message sender.
   ]]
   function Blacklist:get_chat_color()
+    bl_assert(self.chat_color ~= nil, "chat_color member not initialized")
     return self.chat_color
   end
 
@@ -394,7 +389,7 @@ if not Blacklist then
   is used for the username of the message sender.
   --]]
   function Blacklist:set_chat_color(new_chat_color)
-    assert(type(new_chat_color) == "string", "Wrong argument type in set_chat_color")
+    bl_assert(type(new_chat_color) == "string", "Wrong argument type in set_chat_color")
     -- Validate that the new string represents an hexadecimal value
     local new_chat_color = new_chat_color:lower()
     if new_chat_color:find("^[0-9a-f]+$") ~= nil then
@@ -412,7 +407,7 @@ if not Blacklist then
   Returns true if a user is in the blacklist, false otherwise
   --]]
   function Blacklist:is_user_in_blacklist(user_id)
-    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in is_user_in_blacklist")
+    bl_assert(type(self.users) == "table", "Userlist corrupted/uninitialized in is_user_in_blacklist")
     -- If there is an entry in the table for that user, he's in the blacklist
     return self.users[user_id] ~= nil
   end
@@ -426,7 +421,7 @@ if not Blacklist then
     Returns nil if the user is not in the blacklist
   --]]
   function Blacklist:get_user_data(user_id)
-    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in get_user_data")
+    bl_assert(type(self.users) == "table", "Userlist corrupted/uninitialized in get_user_data")
 
     local userdata = self.users[user_id]
     if type(userdata) == "table" then
@@ -441,7 +436,7 @@ if not Blacklist then
   Each iteration returns a string with the user id.
   --]]
   function Blacklist:ids_in_blacklist()
-    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in ids_in_blacklist")
+    bl_assert(type(self.users) == "table", "Userlist corrupted/uninitialized in ids_in_blacklist")
     -- Fill a list with all user ids
     local user_ids = {}
     for user_id, _ in pairs(self.users) do
@@ -469,22 +464,27 @@ if not Blacklist then
     reason (string): Text that explains why a user is added to the blacklist.
   --]]
   function Blacklist:add_user_to_blacklist(user_id, username, reason)
-    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in add_user_to_blacklist")
-    assert(type(user_id) == "string", "Wrong argument type in add_user_to_blacklist")
-    assert(type(username) == "string", "Wrong argument type in add_user_to_blacklist")
-    assert(type(reason) == "string", "Wrong argument type in add_user_to_blacklist")
+    bl_assert(type(self.users) == "table", "Userlist corrupted/uninitialized in add_user_to_blacklist")
 
-    -- Add (or replace) the entry in the user list
-    self.users[user_id] = {username, reason}
+    if bl_check(type(user_id) == "string", "Wrong argument type in add_user_to_blacklist") and
+       bl_check(type(username) == "string", "Wrong argument type in add_user_to_blacklist") and
+       bl_check(type(reason) == "string", "Wrong argument type in add_user_to_blacklist")
+    then
+      -- Add (or replace) the entry in the user list
+      self.users[user_id] = {username, reason}
+    end
   end
 
   --[[
   Remove a user from the blacklist, if he exists.
   --]]
   function Blacklist:remove_user_from_blacklist(user_id)
-    assert(type(self.users) == "table", "Userlist corrupted/uninitialized in remove_user_from_blacklist")
-    assert(type(user_id) == "string", "Wrong argument type in remove_user_from_blacklist")
-    self.users[user_id] = nil
+    bl_assert(type(self.users) == "table", "Userlist corrupted/uninitialized in remove_user_from_blacklist")
+
+    if bl_check(type(user_id) == "string", "Wrong argument type in remove_user_from_blacklist")
+    then
+      self.users[user_id] = nil
+    end
   end
 
   --[[
@@ -509,18 +509,8 @@ if not Blacklist then
   --]]
   function Blacklist:run_tests()
     self:write_to_chat("Running tests")
-    local import_success_input = pcall(dofile, ModPath .. "/GUITextInput.lua")
-    if not import_success_input then
-      return
-    end
-    local test = GUITextInput:new(
-      "This is a test box with an unusually large title, so long in fact that it will go out of the box if there is no text wrapping",
-      [[This is a test description
-in a long string
-over multiple lines
-here's some garbage to test text wrapping: aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhh]],
-      function(...) return end
-    )
+    bl_check(false, "First error")
+    bl_check(false)
     self:write_to_chat("Tests finished")
   end
 
