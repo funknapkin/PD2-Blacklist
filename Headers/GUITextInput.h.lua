@@ -18,6 +18,10 @@ function GUITextInput:on_enter_text(char) end
 function GUITextInput:on_key_press(key) end
 function GUITextInput:on_key_release(key) end
 
+function GUITextInput:_draw_ui() end
+function GUITextInput:_inject_hooks() end
+function GUITextInput:_remove_hooks() end
+
 --[[
 Members
 --]]

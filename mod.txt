@@ -3,7 +3,7 @@
   "description" : "Display a notification when a user in your blacklist joins the game",
   "author" : "Funknapkin",
   "contact" : "github.com/funknapkin",
-  "version" : "0.1",
+  "version" : "0.2",
   "priority" : 10,
   "hooks" : [
     {

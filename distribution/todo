@@ -1,16 +1,10 @@
- Other
-- Start maintaining a changelog, and update the version number on new releases
-- Reorder functions in alphabetical order
-
 Code cleanup:
-- More error checks (arguments, nil values, asserts for members, built-in functions error codes)
+- Make a class to encapsulate the user data (name, user_id, reason for ban, etc)
+  Use this class where appropriate
+- Script to make release .zip
 - Find a better way to make global variables, for backlog and last users list
 - Unit tests
-- Script to make release .zip
 - Make ticket on github, telling me to fix possible performance issue when
   adding new user to blacklist (json save/load)
 - BLT feature request: have an option for MenuHelper:AddMultipleChoice to use
   non-localized data
-- Make a class to encapsulate the user data (name, user_id, reason for ban, etc)
-  Use this class where appropriate
-- Make a script to pack the mod in a .zip

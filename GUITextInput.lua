@@ -1,4 +1,47 @@
 if not GUITextInput then
+  --[[
+  Wrap the text of a string so that each line has at most `length` characters.
+  This function will also remove empty lines
+
+  Args:
+    input: the input string
+    length: number of character per line the output string should have
+
+  Returns:
+    The wrapped string
+  --]]
+  local function wrap_text(input, length)
+    local output = ""
+    -- Verify arguments
+    if type(input) ~= "string" or type(length) ~= "number" or length <= 0 then
+      log("[ERROR] Invalid arguments for function wrap_text in GUITextInput.lua")
+      return output
+    end
+
+    -- The first line has no newline character
+    local first_line = true
+    for line in input:gmatch("[^\r\n]+") do
+      -- Add newline character if necessary
+      if first_line == true then
+        first_line = false
+      else
+        output = output .. "\n"
+      end
+      -- Split the line
+      local lines_to_add = math.ceil(#line / length)
+      for new_line_index = 1,lines_to_add do
+        if new_line_index ~= 1 then
+          output = output .. "\n"
+        end
+        local first_char_index = (new_line_index - 1) * length + 1
+        local last_char_index = first_char_index + length
+        output = output .. line:sub(first_char_index, last_char_index)
+      end
+    end
+
+    return output
+  end
+
   GUITextInput = class()
 
   --[[
@@ -24,6 +67,7 @@ if not GUITextInput then
     self.complete_callback = complete_callback
     self.text = ""
     self.state = "input"
+
     -- Get hook to the keyboard input
     self.workspace = Overlay:gui():create_screen_workspace()
     local kb = Input:keyboard()
@@ -43,6 +87,9 @@ if not GUITextInput then
     self:_draw_ui()
   end
 
+  --[[
+  Destructor
+  --]]
   function GUITextInput:delete()
   	for _, child in ipairs(self.panel:children()) do
   		self.panel:remove(child)
@@ -50,6 +97,18 @@ if not GUITextInput then
   	self.panel:parent():remove(self._panel)
   end
 
+  --[[
+  Function called when a new character was input by the user.
+  --]]
+  function GUITextInput:on_enter_text(char)
+    self.text = self.text .. char
+    self:_draw_ui()
+  end
+
+  --[[
+  Function called when the input session is complete, i.e. when the player
+  pressed the "enter" or "escape" keys.
+  --]]
   function GUITextInput:on_input_complete(canceled)
     self.state = "leaving"
     -- Call the callback function if the user didn't cancel input by pressing
@@ -59,11 +118,9 @@ if not GUITextInput then
     end
   end
 
-  function GUITextInput:on_enter_text(char)
-    self.text = self.text .. char
-    self:_draw_ui()
-  end
-
+  --[[
+  Function called when a key is pressed.
+  --]]
   function GUITextInput:on_key_press(key)
     if key == Idstring("backspace") then
       -- Remove the last character for the text entered
@@ -78,6 +135,9 @@ if not GUITextInput then
     end
   end
 
+  --[[
+  Function called when a key is released.
+  --]]
   function GUITextInput:on_key_release(key)
     if self.state == "leaving" and
        key == Idstring("enter") or key == Idstring("esc")
@@ -103,19 +163,9 @@ if not GUITextInput then
     end
   end
 
-  function GUITextInput:_inject_hooks()
-    --[[
-      There has to be a better way to do this. Perhaps it's possible to register
-      an active menu, and let the menu manager handle the logic???
-    --]]
-    self.orig_update = managers.menu.update
-    managers.menu.update = function(...) end
-  end
-
-  function GUITextInput:_remove_hooks()
-    managers.menu.update = self.orig_update
-  end
-
+  --[[
+  Draw or refresh the entire UI.
+  --]]
   function GUITextInput:_draw_ui()
     -- Define constants
     local FIRST_LAYER = 10000 -- Draw on top of everything
@@ -213,55 +263,26 @@ if not GUITextInput then
       font = tweak_data.menu.pd2_small_font,
       font_size = tweak_data.menu.pd2_small_font_size })
     self.gui_items.text_input:set_text(wrap_text(self.text, 85))
-
-    -- Known issues
-    -- TODO move these in the mod description / git ticket
-    --  - If title is too large, it will go out of the box
-    --  - If the description is too large, it can go over the text input already
-    --  - If the text input is too long, it can go outside of the box
   end
 
   --[[
-  Wrap the text of a string so that each line has at most `length` characters.
-  This function will also remove empty lines
-
-  Args:
-    input: the input string
-    length: number of character per line the output string should have
-
-  Returns:
-    The wrapped string
+  Inject hooks into the game to prevent it from handling certain events.
   --]]
-  function wrap_text(input, length)
-    local output = ""
-    -- Verify arguments
-    if type(input) ~= "string" or type(length) ~= "number" or length <= 0 then
-      log("[ERROR] Invalid arguments for function wrap_text in GUITextInput.lua")
-      return output
-    end
-
-    -- The first line has no newline character
-    local first_line = true
-    for line in input:gmatch("[^\r\n]+") do
-      -- Add newline character if necessary
-      if first_line == true then
-        first_line = false
-      else
-        output = output .. "\n"
-      end
-      -- Split the line
-      local lines_to_add = math.ceil(#line / length)
-      for new_line_index = 1,lines_to_add do
-        if new_line_index ~= 1 then
-          output = output .. "\n"
-        end
-        local first_char_index = (new_line_index - 1) * length + 1
-        local last_char_index = first_char_index + length
-        output = output .. line:sub(first_char_index, last_char_index)
-      end
-    end
-
-    return output
+  function GUITextInput:_inject_hooks()
+    --[[
+      There has to be a better way to do this. Perhaps it's possible to register
+      an active menu, and let the menu manager handle the logic???
+    --]]
+    self.orig_update = managers.menu.update
+    managers.menu.update = function(...) end
   end
 
+  --[[
+  Remove the hooks that were added to the game to restore its functionality.
+  --]]
+  function GUITextInput:_remove_hooks()
+    if type(self.orig_update) == "function" then
+      managers.menu.update = self.orig_update
+    end
+  end
 end

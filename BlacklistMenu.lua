@@ -33,48 +33,6 @@ function BlacklistMenu:back_button_callback()
 end
 
 --[[
-Add a "Blacklist" menu to the BLT's Mod Options menu.
---]]
-function BlacklistMenu:_create_mod_options_menu()
-  -- Menu and button ids
-  local menu_id = "blacklist_options_menu"
-
-  -- Add hook to create options menu
-  Hooks:Add("MenuManagerSetupCustomMenus", "BlacklistOptionsMenu_Setup",
-    function(menu_manager, nodes)
-      MenuHelper:NewMenu(menu_id)
-    end)
-
-  -- Add hook to populate the menu
-  Hooks:Add("MenuManagerPopulateCustomMenus", "BlacklistOptionsMenu_Populate",
-    function(menu_manager, nodes)
-      self:_add_add_player_to_blacklist_button(menu_id, 8)
-      self:_add_remove_player_from_blacklist_selector(menu_id, 7)
-      self:_add_remove_player_from_blacklist_button(menu_id, 6)
-      MenuHelper:AddDivider({id = "blacklist_opt_divider", size = 16,
-        menu_id = menu_id, priority = 5})
-      self:_add_chat_color_button(menu_id, 4)
-      self:_add_chat_name_button(menu_id, 3)
-      self:_add_show_banned_toggle(menu_id, 2)
-      self:_add_show_not_banned_toggle(menu_id, 1)
-    end)
-
-  -- Add hook to build the menu
-  Hooks:Add("MenuManagerBuildCustomMenus", "BlacklistOptionsMenu_Build",
-    function(menu_manager, nodes)
-      -- Add this menu to the Mod Options menu
-      local menu_data = {back_callback = function() self:back_button_callback() end}
-      nodes[menu_id] = MenuHelper:BuildMenu(menu_id, menu_data)
-      local mod_options_menu = MenuHelper:GetMenu("lua_mod_options_menu")
-      MenuHelper:AddMenuItem(
-        mod_options_menu,
-        menu_id,
-        "blacklist_options_menu_title",
-        "blacklist_options_menu_desc")
-    end)
-end
-
---[[
 Add a button to add a player to the blacklist.
 --]]
 function BlacklistMenu:_add_add_player_to_blacklist_button(parent_menu_id, priority)
@@ -86,6 +44,72 @@ function BlacklistMenu:_add_add_player_to_blacklist_button(parent_menu_id, prior
     title = "blacklist_button_popup_menu_title",
     desc = "blacklist_button_popup_menu_desc",
     callback = "blacklist_popup_menu_callback",
+    priority = priority,
+    menu_id = parent_menu_id
+  })
+end
+
+--[[
+Add a button to change the "Chat color" option.
+--]]
+function BlacklistMenu:_add_chat_color_button(parent_menu_id, priority)
+  MenuCallbackHandler.blacklist_button_chat_color_callback = function(this, item)
+    local input_complete_callback = function(text)
+      self.blacklist_ref:set_chat_color(text)
+    end
+    local input_dialog = GUITextInput:new(
+      "Chat color",
+      "Enter a new chat color, used to display notifications in chat. "
+      .. "The format is either \"RRGGBB\" or \"AARRGGBB\", in hexadecimal (example: 00FFFF for cyan).\n"
+      .. "The current chat color is " .. self.blacklist_ref:get_chat_color():upper() .. ".",
+      input_complete_callback)
+  end
+  MenuHelper:AddButton({
+    id = "blacklist_button_chat_color",
+    title = "blacklist_button_chat_color_title",
+    desc = "blacklist_button_chat_color_desc",
+    callback = "blacklist_button_chat_color_callback",
+    priority = priority,
+    menu_id = parent_menu_id
+  })
+end
+
+--[[
+Add a button to change the "Chat name" option.
+--]]
+function BlacklistMenu:_add_chat_name_button(parent_menu_id, priority)
+  MenuCallbackHandler.blacklist_button_chat_name_callback = function(this, item)
+    local input_complete_callback = function(text)
+      self.blacklist_ref:set_chat_name(text)
+    end
+    local input_dialog = GUITextInput:new(
+      "Chat name",
+      "Enter a new chat name, used to display notifications in chat.\n"
+      .. "The current chat name is \"" .. self.blacklist_ref:get_chat_name() .. "\".",
+      input_complete_callback)
+  end
+  MenuHelper:AddButton({
+    id = "blacklist_button_chat_name",
+    title = "blacklist_button_chat_name_title",
+    desc = "blacklist_button_chat_name_desc",
+    callback = "blacklist_button_chat_name_callback",
+    priority = priority,
+    menu_id = parent_menu_id
+  })
+end
+
+--[[
+Add a button to remove a player from the blacklist.
+--]]
+function BlacklistMenu:_add_remove_player_from_blacklist_button(parent_menu_id, priority)
+  MenuCallbackHandler.blacklist_button_remove_player_callback = function(this, item)
+    self.blacklist_ref:remove_user_from_blacklist(self.userid_for_removal)
+  end
+  MenuHelper:AddButton({
+    id = "blacklist_button_remove_player",
+    title = "blacklist_button_remove_player_title",
+    desc = "blacklist_button_remove_player_desc",
+    callback = "blacklist_button_remove_player_callback",
     priority = priority,
     menu_id = parent_menu_id
   })
@@ -145,23 +169,6 @@ function BlacklistMenu:_add_remove_player_from_blacklist_selector(parent_menu_id
 end
 
 --[[
-Add a button to remove a player from the blacklist.
---]]
-function BlacklistMenu:_add_remove_player_from_blacklist_button(parent_menu_id, priority)
-  MenuCallbackHandler.blacklist_button_remove_player_callback = function(this, item)
-    self.blacklist_ref:remove_user_from_blacklist(self.userid_for_removal)
-  end
-  MenuHelper:AddButton({
-    id = "blacklist_button_remove_player",
-    title = "blacklist_button_remove_player_title",
-    desc = "blacklist_button_remove_player_desc",
-    callback = "blacklist_button_remove_player_callback",
-    priority = priority,
-    menu_id = parent_menu_id
-  })
-end
-
---[[
 Add a toggle button for the "Show banned users" option.
 --]]
 function BlacklistMenu:_add_show_banned_toggle(parent_menu_id, priority)
@@ -198,68 +205,43 @@ function BlacklistMenu:_add_show_not_banned_toggle(parent_menu_id, priority)
 end
 
 --[[
-Add a toggle button for the "Show not banned users" option.
+Add a "Blacklist" menu to the BLT's Mod Options menu.
 --]]
-function BlacklistMenu:_add_show_not_banned_toggle(parent_menu_id, priority)
-  MenuCallbackHandler.blacklist_toggle_show_not_banned_callback = function(this, item)
-    self.blacklist_ref:set_show_not_banned(not self.blacklist_ref:get_show_not_banned())
-  end
-  MenuHelper:AddToggle({
-    id = "blacklist_toggle_show_not_banned",
-    title = "blacklist_toggle_show_not_banned_title",
-    desc = "blacklist_toggle_show__notbanned_desc",
-    callback = "blacklist_toggle_show_not_banned_callback",
-    value = self.blacklist_ref:get_show_not_banned(),
-    priority = priority,
-    menu_id = parent_menu_id
-  })
-end
+function BlacklistMenu:_create_mod_options_menu()
+  -- Menu and button ids
+  local menu_id = "blacklist_options_menu"
 
---[[
-Add a button to change the "Chat name" option.
---]]
-function BlacklistMenu:_add_chat_name_button(parent_menu_id, priority)
-  MenuCallbackHandler.blacklist_button_chat_name_callback = function(this, item)
-    local input_complete_callback = function(text)
-      self.blacklist_ref:set_chat_name(text)
-    end
-    local input_dialog = GUITextInput:new(
-      "Chat name",
-      "Enter a new chat name, used to display notifications in chat.\n"
-      .. "The current chat name is \"" .. self.blacklist_ref:get_chat_name() .. "\".",
-      input_complete_callback)
-  end
-  MenuHelper:AddButton({
-    id = "blacklist_button_chat_name",
-    title = "blacklist_button_chat_name_title",
-    desc = "blacklist_button_chat_name_desc",
-    callback = "blacklist_button_chat_name_callback",
-    priority = priority,
-    menu_id = parent_menu_id
-  })
-end
+  -- Add hook to create options menu
+  Hooks:Add("MenuManagerSetupCustomMenus", "BlacklistOptionsMenu_Setup",
+    function(menu_manager, nodes)
+      MenuHelper:NewMenu(menu_id)
+    end)
 
---[[
-Add a button to change the "Chat color" option.
---]]
-function BlacklistMenu:_add_chat_color_button(parent_menu_id, priority)
-  MenuCallbackHandler.blacklist_button_chat_color_callback = function(this, item)
-    local input_complete_callback = function(text)
-      self.blacklist_ref:set_chat_color(text)
-    end
-    local input_dialog = GUITextInput:new(
-      "Chat color",
-      "Enter a new chat color, used to display notifications in chat. "
-      .. "The format is either \"RRGGBB\" or \"AARRGGBB\", in hexadecimal (example: 00FFFF for cyan).\n"
-      .. "The current chat color is " .. self.blacklist_ref:get_chat_color():upper() .. ".",
-      input_complete_callback)
-  end
-  MenuHelper:AddButton({
-    id = "blacklist_button_chat_color",
-    title = "blacklist_button_chat_color_title",
-    desc = "blacklist_button_chat_color_desc",
-    callback = "blacklist_button_chat_color_callback",
-    priority = priority,
-    menu_id = parent_menu_id
-  })
+  -- Add hook to populate the menu
+  Hooks:Add("MenuManagerPopulateCustomMenus", "BlacklistOptionsMenu_Populate",
+    function(menu_manager, nodes)
+      self:_add_add_player_to_blacklist_button(menu_id, 8)
+      self:_add_remove_player_from_blacklist_selector(menu_id, 7)
+      self:_add_remove_player_from_blacklist_button(menu_id, 6)
+      MenuHelper:AddDivider({id = "blacklist_opt_divider", size = 16,
+        menu_id = menu_id, priority = 5})
+      self:_add_chat_color_button(menu_id, 4)
+      self:_add_chat_name_button(menu_id, 3)
+      self:_add_show_banned_toggle(menu_id, 2)
+      self:_add_show_not_banned_toggle(menu_id, 1)
+    end)
+
+  -- Add hook to build the menu
+  Hooks:Add("MenuManagerBuildCustomMenus", "BlacklistOptionsMenu_Build",
+    function(menu_manager, nodes)
+      -- Add this menu to the Mod Options menu
+      local menu_data = {back_callback = function() self:back_button_callback() end}
+      nodes[menu_id] = MenuHelper:BuildMenu(menu_id, menu_data)
+      local mod_options_menu = MenuHelper:GetMenu("lua_mod_options_menu")
+      MenuHelper:AddMenuItem(
+        mod_options_menu,
+        menu_id,
+        "blacklist_options_menu_title",
+        "blacklist_options_menu_desc")
+    end)
 end
