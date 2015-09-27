@@ -8,7 +8,7 @@ BlacklistMenu = {}
 function BlacklistMenu:init(blacklist_ref) end
 
 --[[
-Button ballbacks
+Button callbacks
 --]]
 function BlacklistMenu:back_button_callback() end
 
